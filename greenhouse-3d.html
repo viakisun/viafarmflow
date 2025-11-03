@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온실 3D 렌더링</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 1px solid #333;
+            font-size: 14px;
+            line-height: 1.6;
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        #info h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+        
+        #info .spec {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        #info .spec-label {
+            color: #888;
+        }
+        
+        #info .spec-value {
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 1px solid #333;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="info">
+        <h2>온실 사양</h2>
+        <div class="spec">
+            <span class="spec-label">길이</span>
+            <span class="spec-value">100m</span>
+        </div>
+        <div class="spec">
+            <span class="spec-label">폭</span>
+            <span class="spec-value">40m</span>
+        </div>
+        <div class="spec">
+            <span class="spec-label">높이</span>
+            <span class="spec-value">8m</span>
+        </div>
+        <div class="spec">
+            <span class="spec-label">행잉베드</span>
+            <span class="spec-value">20개 (30m)</span>
+        </div>
+        <div class="spec">
+            <span class="spec-label">배열</span>
+            <span class="spec-value">1열 × 20개</span>
+        </div>
+    </div>
+    
+    <div id="controls">
+        마우스 드래그: 회전 | 마우스 휠: 줌 | 우클릭 드래그: 이동
+    </div>
+    
+    <div id="loading">렌더링 중...</div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+        scene.fog = new THREE.Fog(0x0a0a0a, 100, 300);
+        
+        // Camera
+        const camera = new THREE.PerspectiveCamera(
+            60,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(60, 40, 80);
+        camera.lookAt(0, 0, 0);
+        
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('container').appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(50, 80, 50);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.left = -80;
+        directionalLight.shadow.camera.right = 80;
+        directionalLight.shadow.camera.top = 80;
+        directionalLight.shadow.camera.bottom = -80;
+        directionalLight.shadow.camera.near = 0.1;
+        directionalLight.shadow.camera.far = 200;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        scene.add(directionalLight);
+        
+        const hemisphereLight = new THREE.HemisphereLight(0x87CEEB, 0x362312, 0.5);
+        scene.add(hemisphereLight);
+        
+        // Grid helper
+        const gridHelper = new THREE.GridHelper(200, 40, 0x222222, 0x111111);
+        scene.add(gridHelper);
+        
+        // Materials
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0.1,
+            roughness: 0.1,
+            transmission: 0.9,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+        
+        const frameMaterial = new THREE.MeshStandardMaterial({
+            color: 0x2a2a2a,
+            metalness: 0.8,
+            roughness: 0.2
+        });
+        
+        const bedMaterial = new THREE.MeshStandardMaterial({
+            color: 0x3a5f3a,
+            roughness: 0.7
+        });
+        
+        const supportMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1a1a1a,
+            metalness: 0.7,
+            roughness: 0.3
+        });
+        
+        // Create greenhouse structure
+        function createGreenhouse() {
+            const greenhouse = new THREE.Group();
+            
+            // Dimensions - swapped to match bed layout
+            const length = 100;  // Z축 방향
+            const width = 40;    // X축 방향
+            const height = 8;
+            const frameThickness = 0.3;
+            
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(width, length); // X, Z
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a,
+                roughness: 0.8
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            greenhouse.add(floor);
+            
+            // Glass walls and roof
+            // Front wall (Z+)
+            const frontWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(width, height),
+                glassMaterial
+            );
+            frontWall.position.set(0, height / 2, length / 2);
+            greenhouse.add(frontWall);
+            
+            // Back wall (Z-)
+            const backWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(width, height),
+                glassMaterial
+            );
+            backWall.position.set(0, height / 2, -length / 2);
+            backWall.rotation.y = Math.PI;
+            greenhouse.add(backWall);
+            
+            // Left wall (X-)
+            const leftWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(length, height),
+                glassMaterial
+            );
+            leftWall.position.set(-width / 2, height / 2, 0);
+            leftWall.rotation.y = Math.PI / 2;
+            greenhouse.add(leftWall);
+            
+            // Right wall (X+)
+            const rightWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(length, height),
+                glassMaterial
+            );
+            rightWall.position.set(width / 2, height / 2, 0);
+            rightWall.rotation.y = -Math.PI / 2;
+            greenhouse.add(rightWall);
+            
+            // Roof (slanted)
+            const roofGeometry = new THREE.PlaneGeometry(width / Math.cos(Math.PI / 12), length);
+            const roofLeft = new THREE.Mesh(roofGeometry, glassMaterial);
+            roofLeft.position.set(-width / 4, height + 2, 0);
+            roofLeft.rotation.z = Math.PI / 12;
+            greenhouse.add(roofLeft);
+            
+            const roofRight = new THREE.Mesh(roofGeometry, glassMaterial);
+            roofRight.position.set(width / 4, height + 2, 0);
+            roofRight.rotation.z = -Math.PI / 12;
+            greenhouse.add(roofRight);
+            
+            // Frame structure
+            // Vertical posts
+            const postGeometry = new THREE.BoxGeometry(frameThickness, height, frameThickness);
+            const postPositions = [
+                [-width / 2, height / 2, -length / 2],
+                [-width / 2, height / 2, length / 2],
+                [width / 2, height / 2, -length / 2],
+                [width / 2, height / 2, length / 2]
+            ];
+            
+            postPositions.forEach(pos => {
+                const post = new THREE.Mesh(postGeometry, frameMaterial);
+                post.position.set(...pos);
+                post.castShadow = true;
+                greenhouse.add(post);
+            });
+            
+            // Horizontal frames along Z axis
+            for (let i = -length / 2; i <= length / 2; i += 10) {
+                // Bottom frame
+                const bottomFrame = new THREE.Mesh(
+                    new THREE.BoxGeometry(width, frameThickness, frameThickness),
+                    frameMaterial
+                );
+                bottomFrame.position.set(0, 0, i);
+                greenhouse.add(bottomFrame);
+                
+                // Top frame
+                const topFrame = new THREE.Mesh(
+                    new THREE.BoxGeometry(width, frameThickness, frameThickness),
+                    frameMaterial
+                );
+                topFrame.position.set(0, height, i);
+                greenhouse.add(topFrame);
+            }
+            
+            return greenhouse;
+        }
+        
+        // Create hanging bed
+        function createHangingBed(length = 30) {
+            const bed = new THREE.Group();
+            
+            const bedWidth = 2.0;  // 더 명확하게 보이도록 증가
+            const bedHeight = 0.4;
+            const bedDepth = length;
+            
+            // Main bed platform
+            const bedGeometry = new THREE.BoxGeometry(bedWidth, bedHeight, bedDepth);
+            const bedMesh = new THREE.Mesh(bedGeometry, bedMaterial);
+            bedMesh.castShadow = true;
+            bedMesh.receiveShadow = true;
+            bed.add(bedMesh);
+            
+            // Support cables
+            const cableGeometry = new THREE.CylinderGeometry(0.03, 0.03, 3);
+            const cableMaterial = new THREE.MeshStandardMaterial({
+                color: 0x333333,
+                metalness: 0.9,
+                roughness: 0.1
+            });
+            
+            const cablePositions = [
+                [-bedWidth / 2, 1.5, -bedDepth / 2 + 2],
+                [bedWidth / 2, 1.5, -bedDepth / 2 + 2],
+                [-bedWidth / 2, 1.5, bedDepth / 2 - 2],
+                [bedWidth / 2, 1.5, bedDepth / 2 - 2]
+            ];
+            
+            cablePositions.forEach(pos => {
+                const cable = new THREE.Mesh(cableGeometry, cableMaterial);
+                cable.position.set(...pos);
+                bed.add(cable);
+            });
+            
+            // Add some plants visual
+            for (let i = -bedDepth / 2 + 2; i < bedDepth / 2 - 2; i += 2.5) {
+                const plantGeometry = new THREE.SphereGeometry(0.4, 8, 8);
+                const plantMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x2d5016,
+                    roughness: 0.9
+                });
+                const plant = new THREE.Mesh(plantGeometry, plantMaterial);
+                plant.position.set(0, bedHeight / 2 + 0.4, i);
+                plant.scale.set(1, 0.7, 1);
+                bed.add(plant);
+            }
+            
+            return bed;
+        }
+        
+        // Create dimension lines and labels
+        function createDimensionLine(start, end, offset, label) {
+            const group = new THREE.Group();
+            
+            // Main dimension line
+            const points = [start, end];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0xffaa00,
+                linewidth: 2
+            });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            group.add(line);
+            
+            // End caps
+            const capGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, -0.5, 0),
+                new THREE.Vector3(0, 0.5, 0)
+            ]);
+            
+            const cap1 = new THREE.Line(capGeometry, lineMaterial);
+            cap1.position.copy(start);
+            group.add(cap1);
+            
+            const cap2 = new THREE.Line(capGeometry, lineMaterial);
+            cap2.position.copy(end);
+            group.add(cap2);
+            
+            // Text label using canvas texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillStyle = '#ffaa00';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, 128, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ 
+                map: texture,
+                transparent: true
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            
+            const midPoint = new THREE.Vector3(
+                (start.x + end.x) / 2,
+                (start.y + end.y) / 2,
+                (start.z + end.z) / 2
+            );
+            sprite.position.copy(midPoint).add(offset);
+            sprite.scale.set(8, 4, 1);
+            group.add(sprite);
+            
+            return group;
+        }
+        
+        // Create and add greenhouse
+        const greenhouse = createGreenhouse();
+        scene.add(greenhouse);
+        
+        // Add dimension lines for greenhouse
+        // Length (100m) - along Z axis
+        const lengthDimension = createDimensionLine(
+            new THREE.Vector3(-25, 0, -50),
+            new THREE.Vector3(-25, 0, 50),
+            new THREE.Vector3(-3, 2, 0),
+            '100m'
+        );
+        scene.add(lengthDimension);
+        
+        // Width (40m) - along X axis  
+        const widthDimension = createDimensionLine(
+            new THREE.Vector3(-20, 0, -55),
+            new THREE.Vector3(20, 0, -55),
+            new THREE.Vector3(0, 2, -3),
+            '40m'
+        );
+        scene.add(widthDimension);
+        
+        // Create and add hanging beds (20 beds in 1 row)
+        const bedLength = 30;
+        const bedSpacingZ = 4; // Space between beds along Z axis (4m)
+        
+        // Calculate starting position to center the beds
+        const totalLengthZ = 19 * bedSpacingZ; // 19 spaces between 20 beds = 76m
+        const startZ = -totalLengthZ / 2;
+        
+        const xPos = 0; // Center position
+        
+        for (let i = 0; i < 20; i++) {
+            const bed = createHangingBed(bedLength);
+            
+            // Rotate 90 degrees to align along X axis
+            bed.rotation.y = Math.PI / 2;
+            
+            bed.position.set(
+                xPos,
+                4, // Height from ground
+                startZ + i * bedSpacingZ
+            );
+            bed.castShadow = true;
+            scene.add(bed);
+            
+            // Add dimension line to first bed only
+            if (i === 0) {
+                const bedDimension = createDimensionLine(
+                    new THREE.Vector3(xPos - bedLength / 2, 4, startZ + 1.5),
+                    new THREE.Vector3(xPos + bedLength / 2, 4, startZ + 1.5),
+                    new THREE.Vector3(0, 0.5, 1),
+                    '30m'
+                );
+                scene.add(bedDimension);
+            }
+        }
+        
+        // OrbitControls alternative (manual implementation)
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraRotation = { theta: Math.PI / 3, phi: Math.PI / 5 };
+        let cameraDistance = 100;
+        
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                
+                cameraRotation.theta -= deltaX * 0.005;
+                cameraRotation.phi -= deltaY * 0.005;
+                cameraRotation.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, cameraRotation.phi));
+                
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+        
+        renderer.domElement.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            cameraDistance += e.deltaY * 0.05;
+            cameraDistance = Math.max(30, Math.min(200, cameraDistance));
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update camera position based on rotation
+            camera.position.x = cameraDistance * Math.sin(cameraRotation.phi) * Math.cos(cameraRotation.theta);
+            camera.position.y = cameraDistance * Math.cos(cameraRotation.phi);
+            camera.position.z = cameraDistance * Math.sin(cameraRotation.phi) * Math.sin(cameraRotation.theta);
+            camera.lookAt(0, 2, 0);
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Remove loading message
+        document.getElementById('loading').style.display = 'none';
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
