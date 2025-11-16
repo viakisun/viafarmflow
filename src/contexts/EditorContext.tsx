@@ -422,11 +422,8 @@ export function EditorProvider({ children }: EditorProviderProps) {
   }, []);
 
   // New: Scene Elements actions
-  const updateSceneElements = useCallback((updates: Partial<SceneElementsData>) => {
-    setSceneElements((prev) => ({
-      ...prev,
-      ...updates,
-    }));
+  const updateSceneElements = useCallback((updates: SceneElementsData) => {
+    setSceneElements(updates);
   }, []);
 
   const toggleSceneGrid = useCallback(() => {

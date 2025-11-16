@@ -79,8 +79,12 @@ export interface WaypointObject extends HierarchyObject {
 // Scene Element Interfaces
 export interface GridObject extends HierarchyObject {
   type: 'grid';
-  size: number;
-  divisions: number;
+  sizeX: number;  // 가로 (Width)
+  sizeZ: number;  // 세로 (Length)
+  divisionsX: number;  // 가로 분할 수
+  divisionsZ: number;  // 세로 분할 수
+  fadeDistance: number;
+  fadeStrength: number;
 }
 
 export interface LightingObject extends HierarchyObject {

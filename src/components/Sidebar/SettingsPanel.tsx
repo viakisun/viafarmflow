@@ -3,7 +3,7 @@ import { useEditor } from "../../contexts";
 import type { MapData } from "../../types/greenhouse";
 
 export function SettingsPanel() {
-  const { config, robots, waypoints, zones, loadMapData, resetAll } = useEditor();
+  const { config, robots, waypoints, zones, loadMapData, resetAll, sceneElements, updateSceneElements } = useEditor();
   const [exportFilename, setExportFilename] = useState("greenhouse-map");
 
   const handleExport = () => {
@@ -51,6 +51,126 @@ export function SettingsPanel() {
 
   return (
     <div className="settings-panel">
+      <div className="panel-section">
+        <h3 className="panel-title">그리드 설정</h3>
+        <div className="panel-group">
+          <div className="panel-row">
+            <span className="panel-label">가로 크기 (sizeX)</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.sizeX}
+              onChange={(e) => {
+                const sizeX = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, sizeX },
+                });
+              }}
+              min={10}
+              max={1000}
+              step={10}
+            />
+          </div>
+          <div className="panel-row">
+            <span className="panel-label">세로 크기 (sizeZ)</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.sizeZ}
+              onChange={(e) => {
+                const sizeZ = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, sizeZ },
+                });
+              }}
+              min={10}
+              max={1000}
+              step={10}
+            />
+          </div>
+          <div className="panel-row">
+            <span className="panel-label">가로 분할 (divisionsX)</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.divisionsX}
+              onChange={(e) => {
+                const divisionsX = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, divisionsX },
+                });
+              }}
+              min={5}
+              max={200}
+              step={5}
+            />
+          </div>
+          <div className="panel-row">
+            <span className="panel-label">세로 분할 (divisionsZ)</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.divisionsZ}
+              onChange={(e) => {
+                const divisionsZ = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, divisionsZ },
+                });
+              }}
+              min={5}
+              max={200}
+              step={5}
+            />
+          </div>
+          <div className="panel-row">
+            <span className="panel-label">페이드 거리</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.fadeDistance}
+              onChange={(e) => {
+                const fadeDistance = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, fadeDistance },
+                });
+              }}
+              min={100}
+              max={1000}
+              step={50}
+            />
+          </div>
+          <div className="panel-row">
+            <span className="panel-label">페이드 강도</span>
+            <input
+              type="number"
+              className="panel-input"
+              style={{ width: "80px", textAlign: "right" }}
+              value={sceneElements.grid.fadeStrength}
+              onChange={(e) => {
+                const fadeStrength = Number(e.target.value);
+                updateSceneElements({
+                  ...sceneElements,
+                  grid: { ...sceneElements.grid, fadeStrength },
+                });
+              }}
+              min={0}
+              max={2}
+              step={0.1}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="panel-section">
         <h3 className="panel-title">데이터 내보내기</h3>
         <div className="panel-group">

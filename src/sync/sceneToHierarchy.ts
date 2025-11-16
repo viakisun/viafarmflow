@@ -45,8 +45,12 @@ export function syncSceneElementsToHierarchy(
       children: [],
       visible: sceneData.grid.enabled,
       locked: false,
-      size: sceneData.grid.size,
-      divisions: sceneData.grid.divisions,
+      sizeX: sceneData.grid.sizeX,
+      sizeZ: sceneData.grid.sizeZ,
+      divisionsX: sceneData.grid.divisionsX,
+      divisionsZ: sceneData.grid.divisionsZ,
+      fadeDistance: sceneData.grid.fadeDistance,
+      fadeStrength: sceneData.grid.fadeStrength,
     };
     group.children.push(gridId);
     objects.set(gridId, gridObj);

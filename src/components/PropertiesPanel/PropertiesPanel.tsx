@@ -361,6 +361,60 @@ export function PropertiesPanel({
           </div>
         )}
 
+        {localObject.type === 'grid' && (
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Grid Settings</h4>
+
+            <PropertyField
+              label="가로 크기 (sizeX)"
+              value={(localObject as any).sizeX}
+              type="number"
+              onChange={(v) => handleFieldChange('sizeX', v)}
+              disabled={localObject.locked}
+            />
+
+            <PropertyField
+              label="세로 크기 (sizeZ)"
+              value={(localObject as any).sizeZ}
+              type="number"
+              onChange={(v) => handleFieldChange('sizeZ', v)}
+              disabled={localObject.locked}
+            />
+
+            <PropertyField
+              label="가로 분할 (divisionsX)"
+              value={(localObject as any).divisionsX}
+              type="number"
+              onChange={(v) => handleFieldChange('divisionsX', v)}
+              disabled={localObject.locked}
+            />
+
+            <PropertyField
+              label="세로 분할 (divisionsZ)"
+              value={(localObject as any).divisionsZ}
+              type="number"
+              onChange={(v) => handleFieldChange('divisionsZ', v)}
+              disabled={localObject.locked}
+            />
+
+            <PropertyField
+              label="페이드 거리"
+              value={(localObject as any).fadeDistance}
+              type="number"
+              onChange={(v) => handleFieldChange('fadeDistance', v)}
+              disabled={localObject.locked}
+            />
+
+            <PropertyField
+              label="페이드 강도"
+              value={(localObject as any).fadeStrength}
+              type="number"
+              onChange={(v) => handleFieldChange('fadeStrength', v)}
+              disabled={localObject.locked}
+            />
+          </div>
+        )}
+
         {localObject.type === 'sensor' && (
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Sensor Settings</h4>

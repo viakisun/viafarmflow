@@ -5,8 +5,10 @@
 
 export interface GridConfig {
   enabled: boolean;
-  size: number;
-  divisions: number;
+  sizeX: number;  // 가로 (Width)
+  sizeZ: number;  // 세로 (Length)
+  divisionsX: number;  // 가로 분할 수
+  divisionsZ: number;  // 세로 분할 수
   fadeDistance: number;
   fadeStrength: number;
 }
@@ -46,8 +48,10 @@ export interface SceneElementsData {
 export const DEFAULT_SCENE_ELEMENTS: SceneElementsData = {
   grid: {
     enabled: true,
-    size: 200,
-    divisions: 50,
+    sizeX: 400,  // 가로 400m
+    sizeZ: 100,  // 세로 100m
+    divisionsX: 80,  // 가로 80칸 (5m 간격)
+    divisionsZ: 20,  // 세로 20칸 (5m 간격)
     fadeDistance: 300,
     fadeStrength: 1,
   },
