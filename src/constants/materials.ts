@@ -45,10 +45,12 @@ export const COLORS = {
   dimension: 0xffaa00,
   robot: {
     default: 0x3366ff,
-    selected: 0xff6633,
+    selected: 0x00ff88,    // Bright cyan-green for selected
     idle: 0x33cc33,
     moving: 0x3366ff,
     working: 0xff9933,
+    selectedGlow: 0x40ffaa,  // Glow color
+    selectedRing: 0x00ffff,  // Ring color
   },
   zone: {
     default: 0x6666ff,

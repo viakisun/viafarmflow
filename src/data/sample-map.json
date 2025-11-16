@@ -1,0 +1,158 @@
+{
+  "version": "2.0.0",
+  "name": "ViaFarm Greenhouse Complex A",
+  "description": "Main production greenhouse with automated robot workforce for tomato cultivation",
+  "createdAt": "2024-09-01T00:00:00Z",
+  "updatedAt": "2024-11-14T10:30:00Z",
+  "author": "ViaFarmFlow System",
+  "root": {
+    "id": "greenhouse-main",
+    "type": "greenhouse",
+    "name": "Main Production Greenhouse",
+    "parentId": null,
+    "children": ["zone-1", "zone-2", "zone-3", "bed-row-1", "bed-row-2", "sensor-env-1", "sensor-env-2"],
+    "visible": true,
+    "locked": false,
+    "config": {
+      "dimensions": { "width": 40, "height": 8, "length": 100 },
+      "beds": {
+        "width": 1.5,
+        "height": 3,
+        "length": 80,
+        "count": 10,
+        "spacing": 2,
+        "heightFromGround": 3
+      }
+    },
+    "metadata": {
+      "location": "Farm Section A",
+      "constructionYear": 2023,
+      "lastMaintenance": "2024-10-15"
+    }
+  },
+  "objects": {
+    "greenhouse-main": {
+      "id": "greenhouse-main",
+      "type": "greenhouse",
+      "name": "Main Production Greenhouse",
+      "parentId": null,
+      "children": ["zone-1", "zone-2", "zone-3", "bed-row-1", "bed-row-2", "sensor-env-1", "sensor-env-2"],
+      "visible": true,
+      "locked": false,
+      "config": {
+        "dimensions": { "width": 40, "height": 8, "length": 100 },
+        "beds": {
+          "width": 1.5,
+          "height": 3,
+          "length": 80,
+          "count": 10,
+          "spacing": 2,
+          "heightFromGround": 3
+        }
+      }
+    },
+    "zone-1": {
+      "id": "zone-1",
+      "type": "zone",
+      "name": "Entry & Preparation Zone",
+      "parentId": "greenhouse-main",
+      "children": ["robot-1", "robot-2"],
+      "visible": true,
+      "locked": false,
+      "color": "#10b981",
+      "points": [
+        { "x": -15, "z": -45 },
+        { "x": 15, "z": -45 },
+        { "x": 15, "z": -30 },
+        { "x": -15, "z": -30 }
+      ],
+      "assignedRobotIds": ["robot-1", "robot-2"]
+    },
+    "zone-2": {
+      "id": "zone-2",
+      "type": "zone",
+      "name": "Main Growing Zone",
+      "parentId": "greenhouse-main",
+      "children": ["robot-3", "robot-4"],
+      "visible": true,
+      "locked": false,
+      "color": "#3b82f6",
+      "points": [
+        { "x": -15, "z": -25 },
+        { "x": 15, "z": -25 },
+        { "x": 15, "z": 25 },
+        { "x": -15, "z": 25 }
+      ],
+      "assignedRobotIds": ["robot-3", "robot-4"]
+    },
+    "robot-1": {
+      "id": "robot-1",
+      "type": "robot",
+      "name": "Seeding Robot Alpha",
+      "parentId": "zone-1",
+      "children": ["waypoint-1-1", "waypoint-1-2"],
+      "visible": true,
+      "locked": false,
+      "position": { "x": -5, "y": 0.5, "z": -40 },
+      "rotation": 0,
+      "status": "idle",
+      "model": "seeder-v2",
+      "zoneId": "zone-1"
+    },
+    "robot-3": {
+      "id": "robot-3",
+      "type": "robot",
+      "name": "Monitoring Robot Gamma",
+      "parentId": "zone-2",
+      "children": ["waypoint-3-1", "waypoint-3-2"],
+      "visible": true,
+      "locked": false,
+      "position": { "x": -10, "y": 0.5, "z": 0 },
+      "rotation": 180,
+      "status": "moving",
+      "model": "scanner-pro",
+      "zoneId": "zone-2"
+    },
+    "waypoint-1-1": {
+      "id": "waypoint-1-1",
+      "type": "waypoint",
+      "name": "Entry Point",
+      "parentId": "robot-1",
+      "children": [],
+      "visible": true,
+      "locked": false,
+      "position": { "x": -5, "y": 0.5, "z": -45 },
+      "robotId": "robot-1",
+      "order": 1,
+      "waitTime": 5,
+      "action": "scan_area"
+    },
+    "waypoint-3-1": {
+      "id": "waypoint-3-1",
+      "type": "waypoint",
+      "name": "Scan Point A",
+      "parentId": "robot-3",
+      "children": [],
+      "visible": true,
+      "locked": false,
+      "position": { "x": -10, "y": 0.5, "z": -20 },
+      "robotId": "robot-3",
+      "order": 1,
+      "waitTime": 10,
+      "action": "full_scan"
+    }
+  },
+  "selection": {
+    "primary": "robot-3",
+    "secondary": ["waypoint-3-1"]
+  },
+  "viewSettings": {
+    "expandedNodes": ["greenhouse-main", "zone-2", "robot-3"],
+    "hiddenObjects": [],
+    "lockedLayers": []
+  },
+  "metadata": {
+    "tags": ["production", "tomatoes", "automated"],
+    "notes": "Sample greenhouse configuration for demonstration"
+  }
+}

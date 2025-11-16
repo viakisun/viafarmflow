@@ -1,5 +1,15 @@
+/* Import design tokens and component styles */
+@import './styles/tokens.css';
+@import './styles/components.css';
+
+/* Base application styles */
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-normal);
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -8,5 +18,4 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #000;
 }

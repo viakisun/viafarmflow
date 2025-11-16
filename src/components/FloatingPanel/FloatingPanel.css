@@ -1,0 +1,123 @@
+.floating-panel-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+}
+
+.floating-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.floating-panel.dragging {
+  cursor: move;
+  user-select: none;
+}
+
+.floating-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-tertiary);
+  cursor: move;
+  user-select: none;
+}
+
+.floating-panel.dragging .floating-panel-header {
+  cursor: grabbing;
+}
+
+.floating-panel-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.floating-panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.floating-panel-close:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+
+.floating-panel-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  overflow: auto;
+}
+
+/* Scrollbar styling */
+.floating-panel-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.floating-panel-content::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.floating-panel-content::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.floating-panel-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-default);
+}
+
+/* Resize handle (for resizable panels) */
+.floating-panel-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 10;
+}
+
+.floating-panel-resize::before {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 8px 8px;
+  border-color: transparent transparent var(--color-border-strong) transparent;
+}

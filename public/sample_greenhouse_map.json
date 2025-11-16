@@ -1,0 +1,180 @@
+{
+  "version": "2.0.0",
+  "metadata": {
+    "id": "greenhouse-001",
+    "name": "ViaFarm Greenhouse A",
+    "created": "2024-01-15T10:00:00Z",
+    "modified": "2024-01-15T10:00:00Z",
+    "author": "ViaFarm Admin"
+  },
+  "greenhouse": {
+    "dimensions": {
+      "x": 40,
+      "y": 8,
+      "z": 100
+    },
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  "beds": {
+    "specification": {
+      "width": 1.5,
+      "height": 0.3,
+      "defaultLength": 80
+    },
+    "layout": {
+      "type": "array",
+      "startPosition": {
+        "x": -18,
+        "y": 3,
+        "z": -40
+      },
+      "count": 10,
+      "spacing": 2,
+      "direction": "x",
+      "rows": 2,
+      "rowSpacing": 4
+    },
+    "instances": []
+  },
+  "zones": [
+    {
+      "id": "zone-harvest-1",
+      "name": "Harvest Zone 1",
+      "type": "work",
+      "boundaries": [
+        { "x": -20, "y": 0, "z": -50 },
+        { "x": 0, "y": 0, "z": -50 },
+        { "x": 0, "y": 0, "z": 0 },
+        { "x": -20, "y": 0, "z": 0 }
+      ],
+      "height": 8,
+      "color": "#6666ff",
+      "opacity": 0.3
+    },
+    {
+      "id": "zone-harvest-2",
+      "name": "Harvest Zone 2",
+      "type": "work",
+      "boundaries": [
+        { "x": 0, "y": 0, "z": -50 },
+        { "x": 20, "y": 0, "z": -50 },
+        { "x": 20, "y": 0, "z": 0 },
+        { "x": 0, "y": 0, "z": 0 }
+      ],
+      "height": 8,
+      "color": "#6666ff",
+      "opacity": 0.3
+    },
+    {
+      "id": "zone-storage",
+      "name": "Storage Area",
+      "type": "storage",
+      "boundaries": [
+        { "x": -20, "y": 0, "z": 0 },
+        { "x": 20, "y": 0, "z": 0 },
+        { "x": 20, "y": 0, "z": 50 },
+        { "x": -20, "y": 0, "z": 50 }
+      ],
+      "height": 8,
+      "color": "#ff9933",
+      "opacity": 0.3
+    }
+  ],
+  "sensors": [
+    {
+      "id": "cam-01",
+      "type": "camera",
+      "model": "AXIS-P3375",
+      "position": { "x": 0, "y": 7, "z": -40 },
+      "orientation": {
+        "rotation": { "x": -30, "y": 0, "z": 0 },
+        "fov": 90,
+        "range": 30
+      }
+    },
+    {
+      "id": "cam-02",
+      "type": "camera",
+      "model": "AXIS-P3375",
+      "position": { "x": 0, "y": 7, "z": 0 },
+      "orientation": {
+        "rotation": { "x": -30, "y": 180, "z": 0 },
+        "fov": 90,
+        "range": 30
+      }
+    },
+    {
+      "id": "temp-01",
+      "type": "temperature",
+      "model": "DHT22",
+      "position": { "x": -15, "y": 4, "z": -25 },
+      "range": 5
+    },
+    {
+      "id": "humid-01",
+      "type": "humidity",
+      "model": "DHT22",
+      "position": { "x": -15, "y": 4, "z": -25 },
+      "range": 5
+    },
+    {
+      "id": "co2-01",
+      "type": "co2",
+      "model": "MH-Z19B",
+      "position": { "x": 15, "y": 4, "z": 25 },
+      "range": 10
+    },
+    {
+      "id": "light-01",
+      "type": "light",
+      "model": "BH1750",
+      "position": { "x": 0, "y": 6, "z": 0 },
+      "range": 20
+    }
+  ],
+  "infrastructure": {
+    "irrigationLines": [
+      {
+        "id": "irrigation-main",
+        "points": [
+          { "x": -20, "y": 3.5, "z": -45 },
+          { "x": 20, "y": 3.5, "z": -45 }
+        ],
+        "diameter": 0.05
+      }
+    ],
+    "powerLines": [
+      {
+        "id": "power-main",
+        "points": [
+          { "x": -20, "y": 7, "z": 0 },
+          { "x": 20, "y": 7, "z": 0 }
+        ],
+        "diameter": 0.03
+      }
+    ],
+    "rails": [
+      {
+        "id": "rail-center",
+        "points": [
+          { "x": 0, "y": 0.1, "z": -48 },
+          { "x": 0, "y": 0.1, "z": 48 }
+        ],
+        "width": 0.2
+      }
+    ]
+  },
+  "coordinateAxes": {
+    "enabled": true,
+    "length": 1000
+  }
+}

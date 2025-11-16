@@ -6,9 +6,17 @@ import type { Waypoint as WaypointType } from "../types/greenhouse";
 
 export function PathEditor() {
   const meshRef = useRef<Mesh>(null);
-  const { editorState, selectedRobot, addWaypoint, waypoints, config } = useEditor();
+  const { editorState, selectedRobot, addWaypoint, waypoints, config, staticMapData } = useEditor();
   const { mode } = editorState;
   const [previewPoint, setPreviewPoint] = useState<Vector3 | null>(null);
+
+  // Use staticMapData if available, fallback to legacy config
+  const dimensions = staticMapData?.greenhouse.dimensions || config?.dimensions;
+
+  // Don't render if dimensions are not available
+  if (!dimensions) {
+    return null;
+  }
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     if (mode !== "path" || !selectedRobot) return;
@@ -18,8 +26,8 @@ export function PathEditor() {
 
     // 온실 경계 내에 있는지 확인
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: dimensions.x / 2,
+      z: dimensions.z / 2,
     };
 
     if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
@@ -52,8 +60,8 @@ export function PathEditor() {
     const point = event.point;
 
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: dimensions.x / 2,
+      z: dimensions.z / 2,
     };
 
     if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
@@ -83,7 +91,7 @@ export function PathEditor() {
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
-        <planeGeometry args={[config.dimensions.width, config.dimensions.length]} />
+        <planeGeometry args={[dimensions.x, dimensions.z]} />
         <meshBasicMaterial color={0x0066ff} transparent opacity={0.1} visible={mode === "path"} />
       </mesh>
 

@@ -6,8 +6,16 @@ import type { Robot } from "../types/greenhouse";
 
 export function InteractiveFloor() {
   const meshRef = useRef<Mesh>(null);
-  const { editorState, addRobot, config } = useEditor();
+  const { editorState, addRobot, config, staticMapData } = useEditor();
   const { mode } = editorState;
+
+  // Use staticMapData if available, fallback to legacy config
+  const dimensions = staticMapData?.greenhouse.dimensions || config?.dimensions;
+
+  // Don't render if dimensions are not available
+  if (!dimensions) {
+    return null;
+  }
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     // 로봇 모드에서만 클릭으로 로봇 추가
@@ -18,8 +26,8 @@ export function InteractiveFloor() {
 
       // 온실 경계 내에 있는지 확인
       const bounds = {
-        x: config.dimensions.width / 2,
-        z: config.dimensions.length / 2,
+        x: dimensions.x / 2,
+        z: dimensions.z / 2,
       };
 
       if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
@@ -57,7 +65,7 @@ export function InteractiveFloor() {
       onPointerMove={handlePointerMove}
       visible={false}
     >
-      <planeGeometry args={[config.dimensions.width, config.dimensions.length]} />
+      <planeGeometry args={[dimensions.x, dimensions.z]} />
       <meshBasicMaterial transparent opacity={0} />
     </mesh>
   );

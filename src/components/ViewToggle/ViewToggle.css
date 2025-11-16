@@ -1,0 +1,46 @@
+.view-toggle {
+  position: relative;
+  display: inline-flex;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xxs);
+  gap: var(--spacing-xxs);
+}
+
+.view-toggle-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  z-index: 1;
+}
+
+.view-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.view-toggle-btn.active {
+  color: var(--color-text-inverse);
+}
+
+.view-toggle-indicator {
+  position: absolute;
+  top: var(--spacing-xxs);
+  left: var(--spacing-xxs);
+  width: calc(50% - var(--spacing-xxs));
+  height: calc(100% - var(--spacing-xs));
+  background: var(--color-accent-primary);
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}

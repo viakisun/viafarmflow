@@ -6,11 +6,19 @@ import { useEditor } from "../../contexts";
 import type { WorkZone, RobotPosition } from "../../types/greenhouse";
 
 export function ZoneEditor() {
-  const { editorState, addZone, config } = useEditor();
+  const { editorState, addZone, config, staticMapData } = useEditor();
   const { mode } = editorState;
   const [drawingPoints, setDrawingPoints] = useState<RobotPosition[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [previewPoint, setPreviewPoint] = useState<Vector3 | null>(null);
+
+  // Use staticMapData if available, fallback to legacy config
+  const dimensions = staticMapData?.greenhouse.dimensions || config?.dimensions;
+
+  // Don't render if dimensions are not available
+  if (!dimensions) {
+    return null;
+  }
 
   // ESC 키로 그리기 취소
   useEffect(() => {
@@ -34,8 +42,8 @@ export function ZoneEditor() {
 
     // 온실 경계 내에 있는지 확인
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: dimensions.x / 2,
+      z: dimensions.z / 2,
     };
 
     if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
@@ -93,8 +101,8 @@ export function ZoneEditor() {
     const point = event.point;
 
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: dimensions.x / 2,
+      z: dimensions.z / 2,
     };
 
     if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
@@ -131,7 +139,7 @@ export function ZoneEditor() {
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
-        <planeGeometry args={[config.dimensions.width, config.dimensions.length]} />
+        <planeGeometry args={[dimensions.x, dimensions.z]} />
         <meshBasicMaterial color={0xff6600} transparent opacity={0.05} visible={mode === "zone"} />
       </mesh>
 

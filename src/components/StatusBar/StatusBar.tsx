@@ -3,8 +3,11 @@ import { useEditor } from "../../contexts";
 import "./StatusBar.css";
 
 export function StatusBar() {
-  const { editorState, robots, zones, config } = useEditor();
+  const { editorState, robots, zones, config, staticMapData, selectedObject } = useEditor();
   const [fps, setFps] = useState(60);
+
+  // Use staticMapData if available, fallback to legacy config
+  const dimensions = staticMapData?.greenhouse.dimensions || config?.dimensions;
 
   useEffect(() => {
     let frameCount = 0;
@@ -54,12 +57,37 @@ export function StatusBar() {
 
       <div className="statusbar-divider" />
 
-      <div className="statusbar-section">
-        <span className="statusbar-label">온실:</span>
-        <span className="statusbar-value">
-          {config.dimensions.width}×{config.dimensions.length}×{config.dimensions.height}m
-        </span>
-      </div>
+      {dimensions && (
+        <div className="statusbar-section">
+          <span className="statusbar-label">온실:</span>
+          <span className="statusbar-value">
+            {dimensions.x}×{dimensions.z}×{dimensions.y}m
+          </span>
+        </div>
+      )}
+
+      {/* 선택된 오브젝트 정보 */}
+      {selectedObject && (
+        <>
+          <div className="statusbar-divider" />
+          <div className="statusbar-section statusbar-selected">
+            <span className="statusbar-label">선택:</span>
+            <span className="statusbar-value statusbar-highlight">
+              {selectedObject.name} ({selectedObject.type})
+            </span>
+            {editorState.transformMode && editorState.mode === "edit" && (
+              <>
+                <span className="statusbar-divider-small">|</span>
+                <span className="statusbar-transform-mode">
+                  {editorState.transformMode === "translate" && "이동"}
+                  {editorState.transformMode === "rotate" && "회전"}
+                  {editorState.transformMode === "scale" && "크기"}
+                </span>
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       <div className="statusbar-spacer" />
 

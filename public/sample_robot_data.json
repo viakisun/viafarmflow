@@ -1,0 +1,106 @@
+{
+  "timestamp": "2024-01-15T14:30:00Z",
+  "robots": [
+    {
+      "id": "robot-001",
+      "name": "Harvester-01",
+      "model": "VF-H100",
+      "position": { "x": -5, "y": 0, "z": -20 },
+      "rotation": { "x": 0, "y": 90, "z": 0 },
+      "status": "working",
+      "battery": 75,
+      "currentZone": "zone-harvest-1",
+      "currentTask": "harvesting",
+      "speed": 0.5
+    },
+    {
+      "id": "robot-002",
+      "name": "Harvester-02",
+      "model": "VF-H100",
+      "position": { "x": 10, "y": 0, "z": -30 },
+      "rotation": { "x": 0, "y": 180, "z": 0 },
+      "status": "moving",
+      "battery": 90,
+      "currentZone": "zone-harvest-2",
+      "targetPosition": { "x": 15, "y": 0, "z": -35 },
+      "speed": 1.0
+    },
+    {
+      "id": "robot-003",
+      "name": "Transporter-01",
+      "model": "VF-T200",
+      "position": { "x": 0, "y": 0, "z": 10 },
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "status": "idle",
+      "battery": 100,
+      "currentZone": "zone-storage",
+      "speed": 0
+    }
+  ],
+  "waypoints": [
+    {
+      "id": "wp-001",
+      "position": { "x": 0, "y": 0, "z": -40 },
+      "type": "checkpoint",
+      "name": "North Entry"
+    },
+    {
+      "id": "wp-002",
+      "position": { "x": 0, "y": 0, "z": 0 },
+      "type": "intersection",
+      "name": "Center Cross"
+    },
+    {
+      "id": "wp-003",
+      "position": { "x": 0, "y": 0, "z": 40 },
+      "type": "checkpoint",
+      "name": "South Entry"
+    },
+    {
+      "id": "wp-004",
+      "position": { "x": -18, "y": 0, "z": 40 },
+      "type": "charging",
+      "name": "Charging Station 1"
+    },
+    {
+      "id": "wp-005",
+      "position": { "x": 18, "y": 0, "z": 40 },
+      "type": "charging",
+      "name": "Charging Station 2"
+    }
+  ],
+  "paths": [
+    {
+      "id": "path-main",
+      "name": "Main Path",
+      "waypoints": ["wp-001", "wp-002", "wp-003"],
+      "bidirectional": true
+    },
+    {
+      "id": "path-to-charging-1",
+      "name": "To Charging Station 1",
+      "waypoints": ["wp-003", "wp-004"],
+      "bidirectional": true
+    },
+    {
+      "id": "path-to-charging-2",
+      "name": "To Charging Station 2",
+      "waypoints": ["wp-003", "wp-005"],
+      "bidirectional": true
+    }
+  ],
+  "assignments": [
+    {
+      "zoneId": "zone-harvest-1",
+      "robotIds": ["robot-001"]
+    },
+    {
+      "zoneId": "zone-harvest-2",
+      "robotIds": ["robot-002"]
+    },
+    {
+      "zoneId": "zone-storage",
+      "robotIds": ["robot-003"]
+    }
+  ]
+}

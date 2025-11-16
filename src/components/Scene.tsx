@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Grid } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Greenhouse } from "./Greenhouse";
 import { HangingBeds } from "./HangingBeds";
 import { Robots } from "./Robot/Robots";
@@ -8,13 +8,33 @@ import { WorkZones } from "./Zone/WorkZones";
 import { InteractiveFloor } from "./InteractiveFloor";
 import { PathEditor } from "./PathEditor";
 import { ZoneEditor } from "./Zone/ZoneEditor";
+import { JsonRenderer3D } from "./JsonRenderer";
+import { SceneRenderer } from "../renderers/SceneRenderer";
 import { useEditor } from "../contexts";
 import { COLORS } from "../constants/materials";
-import { CAMERA_CONFIG, LIGHTING_CONFIG, GRID_CONFIG } from "../constants/defaults";
+import { CAMERA_CONFIG } from "../constants/defaults";
 
 export function Scene() {
-  const { config, editorState } = useEditor();
-  const { showGrid } = editorState;
+  const { config, staticMapData, mapData, sceneElements } = useEditor();
+
+  // mapData visibility와 sceneElements 동기화
+  const gridVisible = mapData.objects.get('scene-grid')?.visible ?? sceneElements.grid.enabled;
+  const axesVisible = mapData.objects.get('scene-axes')?.visible ?? sceneElements.coordinateAxes.enabled;
+  const ambientVisible = mapData.objects.get('scene-light-ambient')?.visible ?? sceneElements.lighting.ambient.enabled;
+  const directionalVisible = mapData.objects.get('scene-light-directional')?.visible ?? sceneElements.lighting.directional.enabled;
+  const hemisphereVisible = mapData.objects.get('scene-light-hemisphere')?.visible ?? sceneElements.lighting.hemisphere.enabled;
+
+  const syncedSceneElements = {
+    ...sceneElements,
+    grid: { ...sceneElements.grid, enabled: gridVisible },
+    coordinateAxes: { ...sceneElements.coordinateAxes, enabled: axesVisible },
+    lighting: {
+      ...sceneElements.lighting,
+      ambient: { ...sceneElements.lighting.ambient, enabled: ambientVisible },
+      directional: { ...sceneElements.lighting.directional, enabled: directionalVisible },
+      hemisphere: { ...sceneElements.lighting.hemisphere, enabled: hemisphereVisible },
+    },
+  };
 
   return (
     <Canvas
@@ -33,54 +53,20 @@ export function Scene() {
         background: `#${COLORS.background.toString(16).padStart(6, "0")}`,
       }}
     >
-      {/* 조명 */}
-      <ambientLight
-        color={LIGHTING_CONFIG.ambient.color}
-        intensity={LIGHTING_CONFIG.ambient.intensity}
-      />
-      <directionalLight
-        color={LIGHTING_CONFIG.directional.color}
-        intensity={LIGHTING_CONFIG.directional.intensity}
-        position={[
-          LIGHTING_CONFIG.directional.position.x,
-          LIGHTING_CONFIG.directional.position.y,
-          LIGHTING_CONFIG.directional.position.z,
-        ]}
-        castShadow
-        shadow-camera-left={-80}
-        shadow-camera-right={80}
-        shadow-camera-top={80}
-        shadow-camera-bottom={-80}
-        shadow-camera-near={0.1}
-        shadow-camera-far={200}
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-      <hemisphereLight
-        color={LIGHTING_CONFIG.hemisphere.skyColor}
-        groundColor={LIGHTING_CONFIG.hemisphere.groundColor}
-        intensity={LIGHTING_CONFIG.hemisphere.intensity}
-      />
+      {/* Scene Elements (Grid, Lighting, Axes) */}
+      <SceneRenderer sceneData={syncedSceneElements} />
 
-      {/* 그리드 */}
-      {showGrid && (
-        <Grid
-          args={[GRID_CONFIG.size, GRID_CONFIG.divisions]}
-          cellColor={COLORS.grid.minor}
-          sectionColor={COLORS.grid.major}
-          fadeDistance={300}
-          fadeStrength={1}
-        />
-      )}
-
-      {/* 온실 구조 */}
-      <Greenhouse dimensions={config.dimensions} />
-
-      {/* 행잉 베드 */}
-      <HangingBeds config={config.beds} />
-
-      {/* 작업 영역 */}
-      <WorkZones />
+      {/* JSON 기반 렌더링 (staticMapData가 있으면 사용) */}
+      {staticMapData ? (
+        <JsonRenderer3D staticMapData={staticMapData} mapData={mapData} />
+      ) : config ? (
+        <>
+          {/* 레거시 렌더링 */}
+          <Greenhouse dimensions={config.dimensions} />
+          <HangingBeds config={config.beds} />
+          <WorkZones />
+        </>
+      ) : null}
 
       {/* 로봇들 */}
       <Robots />
