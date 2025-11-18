@@ -5,11 +5,13 @@
 
 import type { StaticMapData } from '../types/staticMapData';
 import type { DynamicRobotData } from '../types/dynamicRobotData';
+import type { Robot, Waypoint } from '../types/greenhouse';
 import type { SceneElementsData } from '../types/core/scene';
 import type { HierarchicalMapData, GroupObject, MapObject } from '../types/core/hierarchy';
 import { syncSceneElementsToHierarchy } from './sceneToHierarchy';
 import { syncStaticToHierarchical } from '../utils/staticToHierarchicalSync';
 import { syncDynamicToHierarchy } from './dynamicToHierarchy';
+import { syncLegacyToHierarchy } from './legacyToHierarchy';
 
 /**
  * Root Group 생성
@@ -34,7 +36,9 @@ export function syncToUnifiedHierarchy(
   staticData: StaticMapData | null,
   dynamicData: DynamicRobotData | null,
   sceneData: SceneElementsData,
-  existingHierarchy?: HierarchicalMapData
+  existingHierarchy?: HierarchicalMapData,
+  legacyRobots?: Robot[],
+  legacyWaypoints?: Waypoint[]
 ): HierarchicalMapData {
   const objects = new Map<string, MapObject>();
   const root = createRootGroup();
@@ -70,6 +74,7 @@ export function syncToUnifiedHierarchy(
   }
 
   // 2. Dynamic Objects Group (Robots, Waypoints, Paths)
+  // DynamicRobotData가 있으면 사용, 없으면 legacy data 사용
   if (dynamicData) {
     const dynamicResult = syncDynamicToHierarchy(dynamicData, 'root');
     root.children.push(dynamicResult.group.id);
@@ -81,6 +86,28 @@ export function syncToUnifiedHierarchy(
     });
 
     // Dynamic의 기본 확장 노드 추가
+    defaultExpandedNodes.push(
+      'dynamic-elements',
+      'robots-group',
+      'waypoints-group',
+      'paths-group'
+    );
+  } else if (legacyRobots || legacyWaypoints) {
+    // Legacy robot/waypoint data를 hierarchy에 추가
+    const legacyResult = syncLegacyToHierarchy(
+      legacyRobots || [],
+      legacyWaypoints || [],
+      'root'
+    );
+    root.children.push(legacyResult.group.id);
+
+    // Legacy objects를 unified hierarchy에 병합
+    objects.set(legacyResult.group.id, legacyResult.group);
+    legacyResult.objects.forEach((obj, id) => {
+      objects.set(id, obj);
+    });
+
+    // Legacy의 기본 확장 노드 추가
     defaultExpandedNodes.push(
       'dynamic-elements',
       'robots-group',

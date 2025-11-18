@@ -1,5 +1,5 @@
 // Mock hierarchical map data for testing and development
-import type { HierarchicalMapData, GreenhouseObject, ZoneObject, RobotObject, WaypointObject, BedObject, SensorObject, MapObject } from '../types/mapData';
+import type { HierarchicalMapData, GreenhouseObject, ZoneObject, RobotObject, WaypointObject, BedObject, MapObject } from '../types/mapData';
 
 // Create mock data with realistic greenhouse configuration
 export const createMockMapData = (): HierarchicalMapData => {
@@ -11,7 +11,7 @@ export const createMockMapData = (): HierarchicalMapData => {
     type: 'greenhouse',
     name: 'Main Production Greenhouse',
     parentId: null,
-    children: ['zone-1', 'zone-2', 'zone-3', 'bed-row-1', 'bed-row-2', 'sensor-env-1', 'sensor-env-2'],
+    children: ['zone-1', 'zone-2', 'zone-3', 'bed-row-1', 'bed-row-2'],
     visible: true,
     locked: false,
     config: {
@@ -404,45 +404,6 @@ export const createMockMapData = (): HierarchicalMapData => {
     },
   };
 
-  // Environmental Sensors
-  const sensor1: SensorObject = {
-    id: 'sensor-env-1',
-    type: 'sensor',
-    name: 'Climate Sensor North',
-    parentId: 'greenhouse-main',
-    children: [],
-    visible: true,
-    locked: false,
-    position: { x: 0, y: 6, z: -30 },
-    sensorType: 'temperature',
-    value: 24.5,
-    unit: '°C',
-    metadata: {
-      lastCalibration: '2024-10-01',
-      accuracy: '±0.5°C',
-      model: 'TempProbe-X200',
-    },
-  };
-
-  const sensor2: SensorObject = {
-    id: 'sensor-env-2',
-    type: 'sensor',
-    name: 'Humidity Sensor South',
-    parentId: 'greenhouse-main',
-    children: [],
-    visible: true,
-    locked: false,
-    position: { x: 0, y: 6, z: 30 },
-    sensorType: 'humidity',
-    value: 65,
-    unit: '%',
-    metadata: {
-      lastCalibration: '2024-10-01',
-      accuracy: '±2%',
-      model: 'HumidTrack-Pro',
-    },
-  };
-
   // Create the objects map
   const objects = new Map<string, MapObject>([
     ['greenhouse-main', greenhouse],
@@ -467,8 +428,6 @@ export const createMockMapData = (): HierarchicalMapData => {
     ['waypoint-5-2', waypoint52],
     ['bed-row-1', bedRow1],
     ['bed-row-2', bedRow2],
-    ['sensor-env-1', sensor1],
-    ['sensor-env-2', sensor2],
   ]);
 
   // Complete map data structure
@@ -496,7 +455,7 @@ export const createMockMapData = (): HierarchicalMapData => {
       lastModified: {
         userId: 'admin-user',
         timestamp: now,
-        changes: 'Added environmental sensors and updated robot waypoints',
+        changes: 'Updated robot waypoints',
       },
     },
   };

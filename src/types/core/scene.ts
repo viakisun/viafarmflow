@@ -1,6 +1,11 @@
 /**
  * Scene Elements 타입 정의
- * UI/시각화 보조 요소 (JSON 저장 안함, UI 상태만 저장)
+ * UI/시각화 보조 요소
+ *
+ * ✅ StaticMapData.sceneSettings에 JSON 저장됨
+ * - Map Editor에서 편집 가능
+ * - JSON 파일 Export/Import 시 포함됨
+ * - Grid, Lighting, Axes 설정 저장
  */
 
 export interface GridConfig {

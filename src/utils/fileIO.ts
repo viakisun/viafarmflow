@@ -1,14 +1,22 @@
 // File I/O utilities for importing and exporting map data
 import type { HierarchicalMapData } from '../types/mapData';
+import type { StaticMapData } from '../types/staticMapData';
+import type { SceneElementsData } from '../types/core/scene';
 
 /**
- * Export map data as JSON file
+ * Export Static Map Data as JSON file
+ * StaticMapData is the single source of truth for map structure
+ * Includes sceneSettings (Grid, Lighting, Axes) for complete map reconstruction
  */
-export function exportMapData(mapData: HierarchicalMapData, filename: string = 'map-data.json') {
-  // Convert Map to plain object for JSON serialization
-  const exportData = {
-    ...mapData,
-    objects: Object.fromEntries(mapData.objects),
+export function exportMapData(
+  staticMapData: StaticMapData,
+  sceneElements: SceneElementsData,
+  filename: string = 'map-data.json'
+) {
+  // StaticMapData with sceneSettings
+  const exportData: StaticMapData = {
+    ...staticMapData,
+    sceneSettings: sceneElements,
   };
 
   const jsonString = JSON.stringify(exportData, null, 2);
@@ -26,29 +34,24 @@ export function exportMapData(mapData: HierarchicalMapData, filename: string = '
 }
 
 /**
- * Import map data from JSON file
+ * Import Static Map Data from JSON file
+ * Returns StaticMapData (which includes sceneSettings if present)
  */
-export function importMapData(file: File): Promise<HierarchicalMapData> {
+export function importMapData(file: File): Promise<StaticMapData> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = (event) => {
       try {
         const jsonString = event.target?.result as string;
-        const parsed = JSON.parse(jsonString);
-
-        // Convert plain object back to Map
-        const mapData: HierarchicalMapData = {
-          ...parsed,
-          objects: new Map(Object.entries(parsed.objects)),
-        };
+        const staticMapData = JSON.parse(jsonString) as StaticMapData;
 
         // Validate the structure
-        if (!mapData.version || !mapData.root || !mapData.objects) {
+        if (!staticMapData.version || !staticMapData.metadata || !staticMapData.greenhouse) {
           throw new Error('Invalid map data structure');
         }
 
-        resolve(mapData);
+        resolve(staticMapData);
       } catch (error) {
         reject(new Error(`Failed to parse JSON: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }

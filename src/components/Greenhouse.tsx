@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { GreenhouseDimensions } from "../types/greenhouse";
-import { MATERIALS, FRAME_THICKNESS, ROOF_ANGLE } from "../constants/materials";
+import { MATERIALS, FRAME_THICKNESS } from "../constants/materials";
 
 interface GreenhouseProps {
   dimensions: GreenhouseDimensions;
@@ -9,7 +9,6 @@ interface GreenhouseProps {
 
 export function Greenhouse({ dimensions }: GreenhouseProps) {
   const { length, width, height } = dimensions;
-  const roofHeight = (width / 2) * Math.tan(ROOF_ANGLE);
 
   // 수평 프레임 위치들 (Z축 방향)
   const horizontalFrames = useMemo(() => {
@@ -49,76 +48,6 @@ export function Greenhouse({ dimensions }: GreenhouseProps) {
       {/* 유리 벽 - 우 (X+) */}
       <mesh position={[width / 2, height / 2, 0]} rotation-y={-Math.PI / 2}>
         <planeGeometry args={[length, height]} />
-        <meshPhysicalMaterial {...MATERIALS.glass} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* 지붕 - 왼쪽 */}
-      <mesh
-        position={[-width / 4, height + (width / 4) * Math.tan(ROOF_ANGLE), 0]}
-        rotation={[0, 0, ROOF_ANGLE]}
-      >
-        <planeGeometry args={[width / 2 / Math.cos(ROOF_ANGLE), length]} />
-        <meshPhysicalMaterial {...MATERIALS.glass} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* 지붕 - 오른쪽 */}
-      <mesh
-        position={[width / 4, height + (width / 4) * Math.tan(ROOF_ANGLE), 0]}
-        rotation={[0, 0, -ROOF_ANGLE]}
-      >
-        <planeGeometry args={[width / 2 / Math.cos(ROOF_ANGLE), length]} />
-        <meshPhysicalMaterial {...MATERIALS.glass} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* 지붕 중앙 빔 (Ridge) */}
-      <mesh position={[0, height + (width / 2) * Math.tan(ROOF_ANGLE), 0]}>
-        <boxGeometry args={[FRAME_THICKNESS, FRAME_THICKNESS, length]} />
-        <meshStandardMaterial {...MATERIALS.frame} />
-      </mesh>
-
-      {/* 지붕 삼각형 끝 - 앞면 (3개의 삼각형으로 구성) */}
-      <mesh position={[0, height + roofHeight / 2, length / 2]}>
-        <bufferGeometry>
-          <float32BufferAttribute
-            attach="attributes-position"
-            args={[new Float32Array([
-              -width / 2, -roofHeight / 2, 0,  // 왼쪽 하단
-              width / 2, -roofHeight / 2, 0,   // 오른쪽 하단
-              0, roofHeight / 2, 0,            // 꼭대기
-            ]), 3]}
-          />
-          <float32BufferAttribute
-            attach="attributes-normal"
-            args={[new Float32Array([
-              0, 0, 1,
-              0, 0, 1,
-              0, 0, 1,
-            ]), 3]}
-          />
-        </bufferGeometry>
-        <meshPhysicalMaterial {...MATERIALS.glass} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* 지붕 삼각형 끝 - 뒷면 */}
-      <mesh position={[0, height + roofHeight / 2, -length / 2]}>
-        <bufferGeometry>
-          <float32BufferAttribute
-            attach="attributes-position"
-            args={[new Float32Array([
-              -width / 2, -roofHeight / 2, 0,  // 왼쪽 하단
-              width / 2, -roofHeight / 2, 0,   // 오른쪽 하단
-              0, roofHeight / 2, 0,            // 꼭대기
-            ]), 3]}
-          />
-          <float32BufferAttribute
-            attach="attributes-normal"
-            args={[new Float32Array([
-              0, 0, -1,
-              0, 0, -1,
-              0, 0, -1,
-            ]), 3]}
-          />
-        </bufferGeometry>
         <meshPhysicalMaterial {...MATERIALS.glass} side={THREE.DoubleSide} />
       </mesh>
 

@@ -8,6 +8,7 @@ import { WorkZones } from "./Zone/WorkZones";
 import { InteractiveFloor } from "./InteractiveFloor";
 import { PathEditor } from "./PathEditor";
 import { ZoneEditor } from "./Zone/ZoneEditor";
+import { FloorEditor } from "./FloorEditor";
 import { JsonRenderer3D } from "./JsonRenderer";
 import { SceneRenderer } from "../renderers/SceneRenderer";
 import { useEditor } from "../contexts";
@@ -82,6 +83,9 @@ export function Scene() {
 
       {/* 구역 편집기 */}
       <ZoneEditor />
+
+      {/* 바닥 편집기 */}
+      <FloorEditor />
 
       {/* 카메라 컨트롤 */}
       <OrbitControls

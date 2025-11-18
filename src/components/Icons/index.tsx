@@ -86,6 +86,7 @@ export const Icons = {
   robot: Bot,
   path: Route,
   zone: Grid3x3,
+  floor: Square,
 
   // Actions
   play: Play,

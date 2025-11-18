@@ -457,30 +457,158 @@ export function PropertiesPanel({
         )}
 
         {localObject.type === 'greenhouse' && (
-          <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>Greenhouse Dimensions</h4>
+          <>
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Position</h4>
+              <PropertyField
+                label="X"
+                value={(localObject as any).position?.x}
+                type="number"
+                onChange={(v) => handleFieldChange('position.x', v)}
+                step={0.1}
+              />
+              <PropertyField
+                label="Y"
+                value={(localObject as any).position?.y}
+                type="number"
+                onChange={(v) => handleFieldChange('position.y', v)}
+                step={0.1}
+              />
+              <PropertyField
+                label="Z"
+                value={(localObject as any).position?.z}
+                type="number"
+                onChange={(v) => handleFieldChange('position.z', v)}
+                step={0.1}
+              />
+            </div>
 
-            <PropertyField
-              label="Width (m)"
-              value={(localObject as any).config?.dimensions?.width}
-              type="number"
-              onChange={(v) => handleFieldChange('config.dimensions.width', v)}
-            />
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Rotation</h4>
+              <PropertyField
+                label="X (rad)"
+                value={(localObject as any).rotation?.x}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.x', v)}
+                step={0.01}
+              />
+              <PropertyField
+                label="Y (rad)"
+                value={(localObject as any).rotation?.y}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.y', v)}
+                step={0.01}
+              />
+              <PropertyField
+                label="Z (rad)"
+                value={(localObject as any).rotation?.z}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.z', v)}
+                step={0.01}
+              />
+            </div>
 
-            <PropertyField
-              label="Height (m)"
-              value={(localObject as any).config?.dimensions?.height}
-              type="number"
-              onChange={(v) => handleFieldChange('config.dimensions.height', v)}
-            />
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Dimensions</h4>
 
-            <PropertyField
-              label="Length (m)"
-              value={(localObject as any).config?.dimensions?.length}
-              type="number"
-              onChange={(v) => handleFieldChange('config.dimensions.length', v)}
-            />
-          </div>
+              <PropertyField
+                label="Width (m)"
+                value={(localObject as any).config?.dimensions?.width}
+                type="number"
+                onChange={(v) => handleFieldChange('config.dimensions.width', v)}
+              />
+
+              <PropertyField
+                label="Height (m)"
+                value={(localObject as any).config?.dimensions?.height}
+                type="number"
+                onChange={(v) => handleFieldChange('config.dimensions.height', v)}
+              />
+
+              <PropertyField
+                label="Length (m)"
+                value={(localObject as any).config?.dimensions?.length}
+                type="number"
+                onChange={(v) => handleFieldChange('config.dimensions.length', v)}
+              />
+            </div>
+          </>
+        )}
+
+        {localObject.type === 'bed' && (
+          <>
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Position</h4>
+              <PropertyField
+                label="X"
+                value={(localObject as any).position?.x}
+                type="number"
+                onChange={(v) => handleFieldChange('position.x', v)}
+                step={0.1}
+              />
+              <PropertyField
+                label="Y"
+                value={(localObject as any).position?.y}
+                type="number"
+                onChange={(v) => handleFieldChange('position.y', v)}
+                step={0.1}
+              />
+              <PropertyField
+                label="Z"
+                value={(localObject as any).position?.z}
+                type="number"
+                onChange={(v) => handleFieldChange('position.z', v)}
+                step={0.1}
+              />
+            </div>
+
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Rotation</h4>
+              <PropertyField
+                label="X (rad)"
+                value={(localObject as any).rotation?.x}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.x', v)}
+                step={0.01}
+              />
+              <PropertyField
+                label="Y (rad)"
+                value={(localObject as any).rotation?.y}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.y', v)}
+                step={0.01}
+              />
+              <PropertyField
+                label="Z (rad)"
+                value={(localObject as any).rotation?.z}
+                type="number"
+                onChange={(v) => handleFieldChange('rotation.z', v)}
+                step={0.01}
+              />
+            </div>
+
+            <div className={styles.section}>
+              <h4 className={styles.sectionTitle}>Dimensions</h4>
+              <PropertyField
+                label="Width (m)"
+                value={(localObject as any).dimensions?.width}
+                type="number"
+                onChange={(v) => handleFieldChange('dimensions.width', v)}
+              />
+              <PropertyField
+                label="Length (m)"
+                value={(localObject as any).dimensions?.length}
+                type="number"
+                onChange={(v) => handleFieldChange('dimensions.length', v)}
+              />
+              <PropertyField
+                label="Height (m)"
+                value={(localObject as any).dimensions?.height}
+                type="number"
+                onChange={(v) => handleFieldChange('dimensions.height', v)}
+              />
+            </div>
+          </>
         )}
 
         {/* Metadata section */}

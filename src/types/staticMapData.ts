@@ -1,5 +1,7 @@
 // 정적 맵 데이터 타입 정의 (JSON 저장용)
 
+import type { SceneElementsData } from './core/scene';
+
 export interface Vec3 {
   x: number;
   y: number;
@@ -15,9 +17,18 @@ export interface Metadata {
 }
 
 export interface GreenhouseData {
-  dimensions: Vec3;
+  // 바닥 평면도 (2D 다각형)
+  floorBoundaries: Vec3[];  // XZ 평면상의 점들 (Y는 무시됨)
+
+  // 벽 높이
+  wallHeight: number;
+
+  // 위치/회전 (전체 온실의)
   position: Vec3;
   rotation: Vec3;
+
+  // DEPRECATED: 하위 호환성을 위해 유지
+  dimensions: Vec3;
 }
 
 export interface BedSpecification {
@@ -67,24 +78,6 @@ export interface Zone {
   opacity: number;
 }
 
-export type SensorType = 'camera' | 'temperature' | 'humidity' | 'co2' | 'light';
-
-export interface SensorOrientation {
-  rotation?: Vec3;
-  lookAt?: Vec3;
-  fov?: number;
-  range?: number;
-}
-
-export interface Sensor {
-  id: string;
-  type: SensorType;
-  model: string;
-  position: Vec3;
-  orientation?: SensorOrientation;
-  range?: number;
-}
-
 export interface Line {
   id: string;
   points: Vec3[];
@@ -109,7 +102,10 @@ export interface StaticMapData {
   greenhouse: GreenhouseData;
   beds: BedsData;
   zones: Zone[];
-  sensors: Sensor[];
   infrastructure?: Infrastructure;
-  coordinateAxes?: CoordinateAxesData;
+  coordinateAxes?: CoordinateAxesData; // DEPRECATED: Use sceneSettings.coordinateAxes instead
+
+  // Scene visualization settings (Grid, Lighting, Axes)
+  // 시각화 설정 (그리드, 조명, 좌표축) - Map Editor에서 편집 가능
+  sceneSettings?: SceneElementsData;
 }

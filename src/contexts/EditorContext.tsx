@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import type { GreenhouseConfig, Robot, Waypoint, WorkZone, MapData } from "../types/greenhouse";
 import type { HierarchicalMapData, MapObject } from "../types/mapData";
@@ -18,6 +18,7 @@ import {
 } from "./EditorContextDefinition";
 import { generateBedInstances } from "../utils/bedLayoutGenerator";
 import { syncStaticToHierarchical } from "../utils/staticToHierarchicalSync";
+import { syncHierarchicalToStatic } from "../sync/hierarchicalToStatic";
 import { DEFAULT_SCENE_ELEMENTS } from "../types/core/scene";
 import { syncToUnifiedHierarchy } from "../sync/unifiedHierarchySync";
 
@@ -40,6 +41,9 @@ export function EditorProvider({ children }: EditorProviderProps) {
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [zones, setZones] = useState<WorkZone[]>([]);
 
+  // Track if we're currently syncing to prevent circular updates
+  const isSyncingRef = useRef(false);
+
   const [editorState, setEditorState] = useState<EditorState>({
     mode: "view",
     selectedRobotId: null,
@@ -53,22 +57,32 @@ export function EditorProvider({ children }: EditorProviderProps) {
 
   // Sync all data to Unified HierarchicalMapData
   useEffect(() => {
+    if (isSyncingRef.current) return;
+
+    isSyncingRef.current = true;
     const unified = syncToUnifiedHierarchy(
       staticMapData,
       dynamicRobotData,
       sceneElements,
-      mapData
+      mapData,
+      robots,
+      waypoints
     );
     setMapData(unified);
+    isSyncingRef.current = false;
   }, [staticMapData, dynamicRobotData, sceneElements]);
 
   // Sync legacy state with hierarchical data
   useEffect(() => {
+    if (isSyncingRef.current) return;
+
+    isSyncingRef.current = true;
     const legacy = convertToLegacy(mapData);
     setConfig(legacy.config);
     setRobots(legacy.robots);
     setWaypoints(legacy.waypoints);
     setZones(legacy.zones);
+    isSyncingRef.current = false;
   }, [mapData]);
 
   // Config actions
@@ -225,10 +239,18 @@ export function EditorProvider({ children }: EditorProviderProps) {
       const newObjects = new Map(prev.objects);
       newObjects.set(objectId, updatedObject);
 
-      return {
+      const updatedMapData = {
         ...prev,
         objects: newObjects,
       };
+
+      // Hierarchical → Static 역방향 동기화
+      setStaticMapData((prevStatic) => {
+        if (!prevStatic) return prevStatic;
+        return syncHierarchicalToStatic(updatedMapData, prevStatic);
+      });
+
+      return updatedMapData;
     });
   }, []);
 
@@ -301,6 +323,11 @@ export function EditorProvider({ children }: EditorProviderProps) {
   // New: Static map data actions
   const loadStaticMapData = useCallback((data: StaticMapData) => {
     setStaticMapData(data);
+
+    // Restore sceneSettings if present
+    if (data.sceneSettings) {
+      setSceneElements(data.sceneSettings);
+    }
   }, []);
 
   const updateStaticMapData = useCallback((data: StaticMapData) => {

@@ -2,7 +2,7 @@ import { useEditor } from "../../contexts";
 import { DraggableRobot } from "./DraggableRobot";
 
 export function Robots() {
-  const { robots, selectedRobot, selectRobot, selectObject, editorState, config, staticMapData } = useEditor();
+  const { robots, selectedRobot, selectRobot, selectObject, editorState, config, staticMapData, mapData } = useEditor();
   const { mode } = editorState;
 
   // Use staticMapData if available, fallback to legacy config
@@ -25,17 +25,28 @@ export function Robots() {
     }
   };
 
+  // robots-group의 visibility 확인
+  const robotsGroupVisible = mapData.objects.get('robots-group')?.visible ?? true;
+
   return (
     <group name="robots">
-      {robots.map((robot) => (
-        <DraggableRobot
-          key={robot.id}
-          robot={robot}
-          isSelected={selectedRobot?.id === robot.id}
-          onClick={() => handleRobotClick(robot.id)}
-          greenhouseDimensions={dimensions}
-        />
-      ))}
+      {robots.map((robot) => {
+        // 개별 로봇의 hierarchy visibility 확인
+        const robotObj = mapData.objects.get(robot.id);
+        const robotVisible = robotObj?.visible ?? robotsGroupVisible;
+
+        if (!robotVisible) return null;
+
+        return (
+          <DraggableRobot
+            key={robot.id}
+            robot={robot}
+            isSelected={selectedRobot?.id === robot.id}
+            onClick={() => handleRobotClick(robot.id)}
+            greenhouseDimensions={dimensions}
+          />
+        );
+      })}
     </group>
   );
 }

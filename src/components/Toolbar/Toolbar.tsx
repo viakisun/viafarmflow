@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEditor, type EditorMode } from "../../contexts";
 import { Icons } from "../Icons";
 import { IconButton } from "../UI";
@@ -13,6 +14,7 @@ const modeIcons: Record<EditorMode, typeof Icons[keyof typeof Icons]> = {
   robot: Icons.robot,
   path: Icons.path,
   zone: Icons.zone,
+  floor: Icons.floor,
 };
 
 const modeLabels: Record<EditorMode, string> = {
@@ -21,9 +23,13 @@ const modeLabels: Record<EditorMode, string> = {
   robot: "Robot",
   path: "Path",
   zone: "Zone",
+  floor: "Floor",
 };
 
 export function Toolbar() {
+  const navigate = useNavigate();
+  const { mapId } = useParams<{ mapId: string }>();
+
   const {
     editorState,
     setEditorMode,
@@ -35,19 +41,30 @@ export function Toolbar() {
     robots,
     zones,
     mapData,
-    updateMapData
+    updateMapData,
+    staticMapData,
+    loadStaticMapData,
+    sceneElements,
+    updateSceneElements
   } = useEditor();
 
   const [showInfoPanel, setShowInfoPanel] = useState(false);
 
   const { mode, isPlaying, showGrid, showDimensions, transformMode } = editorState;
 
+  const handleBackToMaps = () => {
+    navigate('/');
+  };
+
   const handleImport = () => {
     triggerFileImport(async (file) => {
       try {
-        const data = await importMapData(file);
-        updateMapData(data);
-        notify.success('Import successful', `Loaded map: ${data.name}`);
+        const staticData = await importMapData(file);
+
+        // Load StaticMapData (will auto-sync to HierarchicalMapData and restore sceneSettings)
+        loadStaticMapData(staticData);
+
+        notify.success('Import successful', `Loaded map: ${staticData.metadata.name}`);
       } catch (error) {
         notify.error('Import failed', error instanceof Error ? error.message : 'Unknown error');
       }
@@ -55,8 +72,13 @@ export function Toolbar() {
   };
 
   const handleExport = () => {
+    if (!staticMapData) {
+      notify.error('Export failed', 'No map data to export');
+      return;
+    }
+
     const filename = generateFilename();
-    exportMapData(mapData, filename);
+    exportMapData(staticMapData, sceneElements, filename);
     notify.success('Export successful', `Map saved as ${filename}`);
   };
 
@@ -77,9 +99,19 @@ export function Toolbar() {
   return (
     <div className="toolbar">
       <div className="toolbar-section">
+        <IconButton
+          icon={Icons.chevronLeft}
+          variant="ghost"
+          onClick={handleBackToMaps}
+          tooltip="Back to Maps"
+          size="sm"
+        />
         <div className="toolbar-logo">
           <Icons.activity size={20} className="logo-icon" />
           <span>ViaFarmFlow</span>
+          {staticMapData && (
+            <span className="toolbar-map-name"> - {staticMapData.metadata.name}</span>
+          )}
         </div>
       </div>
 

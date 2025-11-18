@@ -11,6 +11,8 @@ export type ObjectType =
   | 'group'
   // Static Objects
   | 'greenhouse'
+  | 'floor'
+  | 'wall'
   | 'bed'
   | 'zone'
   | 'sensor'
@@ -41,12 +43,30 @@ export interface GroupObject extends HierarchyObject {
 export interface GreenhouseObject extends HierarchyObject {
   type: 'greenhouse';
   dimensions: { width: number; height: number; length: number };
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number };
+  floorBoundaries?: { x: number; y: number; z: number }[];
+  wallHeight?: number;
+}
+
+export interface FloorObject extends HierarchyObject {
+  type: 'floor';
+  boundaries: { x: number; z: number }[];  // XZ 평면상의 다각형
+}
+
+export interface WallObject extends HierarchyObject {
+  type: 'wall';
+  wallType: 'segment';  // 각 벽 조각
+  startPoint: { x: number; z: number };
+  endPoint: { x: number; z: number };
+  height: number;
 }
 
 export interface BedObject extends HierarchyObject {
   type: 'bed';
   position: { x: number; y: number; z: number };
   dimensions: { width: number; length: number; height: number };
+  rotation: { x: number; y: number; z: number };
 }
 
 export interface ZoneObject extends HierarchyObject {
@@ -103,6 +123,8 @@ export interface AxesObject extends HierarchyObject {
 export type MapObject =
   | GroupObject
   | GreenhouseObject
+  | FloorObject
+  | WallObject
   | BedObject
   | ZoneObject
   | SensorObject

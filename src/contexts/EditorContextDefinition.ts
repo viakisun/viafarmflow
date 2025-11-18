@@ -5,7 +5,7 @@ import type { StaticMapData } from "../types/staticMapData";
 import type { DynamicRobotData } from "../types/dynamicRobotData";
 import type { SceneElementsData } from "../types/core/scene";
 
-export type EditorMode = "view" | "edit" | "robot" | "path" | "zone";
+export type EditorMode = "view" | "edit" | "robot" | "path" | "zone" | "floor";
 export type PanelTab = "properties" | "robots" | "paths" | "zones" | "settings" | "tree" | "json";
 export type TransformMode = "translate" | "rotate" | "scale";
 

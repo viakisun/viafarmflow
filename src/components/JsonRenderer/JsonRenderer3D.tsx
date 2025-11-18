@@ -3,18 +3,14 @@ import type { HierarchicalMapData } from '../../types/mapData';
 import { GreenhouseFromJson } from './GreenhouseFromJson';
 import { BedsFromJson } from './BedsFromJson';
 import { ZonesFromJson } from './ZonesFromJson';
-import { SensorsFromJson } from './SensorsFromJson';
-import { CoordinateAxes } from '../CoordinateAxes';
 
 interface JsonRenderer3DProps {
   staticMapData: StaticMapData;
   mapData: HierarchicalMapData;
   onBedClick?: (bedId: string) => void;
   onZoneClick?: (zoneId: string) => void;
-  onSensorClick?: (sensorId: string) => void;
   selectedBedId?: string;
   selectedZoneId?: string;
-  selectedSensorId?: string;
 }
 
 /**
@@ -26,21 +22,13 @@ export function JsonRenderer3D({
   mapData,
   onBedClick,
   onZoneClick,
-  onSensorClick,
   selectedBedId,
-  selectedZoneId,
-  selectedSensorId
+  selectedZoneId
 }: JsonRenderer3DProps) {
   // mapData에서 visibility 정보 추출
   const greenhouseVisible = mapData.objects.get('greenhouse-main')?.visible ?? true;
   const bedsGroupVisible = mapData.objects.get('beds-group')?.visible ?? true;
   const zonesGroupVisible = mapData.objects.get('zones-group')?.visible ?? true;
-  const sensorsGroupVisible = mapData.objects.get('sensors-group')?.visible ?? true;
-
-  // Coordinate Axes 정보 추출
-  const axesObj = mapData.objects.get('coordinate-axes');
-  const axesVisible = axesObj?.visible ?? false;
-  const axesLength = axesObj && 'length' in axesObj ? axesObj.length : 1000;
 
   return (
     <group name="json-renderer-3d">
@@ -69,21 +57,10 @@ export function JsonRenderer3D({
         />
       )}
 
-      {/* 센서 */}
-      {sensorsGroupVisible && (
-        <SensorsFromJson
-          sensors={staticMapData.sensors}
-          mapData={mapData}
-          onSensorClick={onSensorClick}
-          selectedSensorId={selectedSensorId}
-        />
-      )}
-
       {/* 인프라 (추후 구현) */}
       {/* <InfrastructureFromJson infrastructure={staticMapData.infrastructure} /> */}
 
-      {/* 좌표축 */}
-      <CoordinateAxes visible={axesVisible} length={axesLength} />
+      {/* 좌표축은 SceneRenderer에서 렌더링 (중복 제거) */}
     </group>
   );
 }

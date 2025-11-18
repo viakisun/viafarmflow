@@ -32,6 +32,8 @@ function getObjectIcon(type: ObjectType) {
     root: Icons.home,
     group: Icons.zones,
     greenhouse: Icons.home,
+    floor: Icons.cube,
+    wall: Icons.cube,
     zone: Icons.zones,
     robot: Icons.robot,
     waypoint: Icons.paths,

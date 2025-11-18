@@ -3,16 +3,17 @@
  * JSON 기반 정적 데이터를 SceneTree가 표시할 수 있는 계층 구조로 변환
  */
 
-import type { StaticMapData, BedInstance, Zone, Sensor } from '../types/staticMapData';
+import type { StaticMapData, BedInstance, Zone } from '../types/staticMapData';
 import type {
   HierarchicalMapData,
   GreenhouseObject,
+  FloorObject,
+  WallObject,
   BedObject,
   ZoneObject,
-  SensorObject,
   AxesObject,
   MapObject
-} from '../types/mapData';
+} from '../types/core/hierarchy';
 import { generateBedInstances } from './bedLayoutGenerator';
 
 /**
@@ -35,24 +36,65 @@ export function syncStaticToHierarchical(
     children: [],
     visible: true,
     locked: false,
-    config: {
-      dimensions: {
-        width: staticData.greenhouse.dimensions.x,
-        height: staticData.greenhouse.dimensions.y,
-        length: staticData.greenhouse.dimensions.z,
-      },
-      beds: {
-        width: staticData.beds.specification.width,
-        height: 0.3, // 기본 높이
-        length: staticData.beds.specification.length,
-        count: staticData.beds.layout.count,
-        spacing: staticData.beds.layout.spacing,
-        heightFromGround: staticData.beds.layout.startPosition.y,
-      },
+    dimensions: {
+      width: staticData.greenhouse.dimensions.x,
+      height: staticData.greenhouse.dimensions.y,
+      length: staticData.greenhouse.dimensions.z,
     },
+    position: staticData.greenhouse.position,
+    rotation: staticData.greenhouse.rotation,
+    floorBoundaries: staticData.greenhouse.floorBoundaries,
+    wallHeight: staticData.greenhouse.wallHeight,
   };
 
   objects.set(greenhouseId, greenhouseObj);
+
+  // 1-1. Floor 객체 생성
+  if (staticData.greenhouse.floorBoundaries && staticData.greenhouse.floorBoundaries.length > 0) {
+    const floorId = 'greenhouse-floor';
+    greenhouseObj.children.push(floorId);
+
+    const floorObj: FloorObject = {
+      id: floorId,
+      type: 'floor',
+      name: 'Floor',
+      parentId: greenhouseId,
+      children: [],
+      visible: true,
+      locked: false,
+      boundaries: staticData.greenhouse.floorBoundaries.map(p => ({ x: p.x, z: p.z })),
+    };
+    objects.set(floorId, floorObj);
+  }
+
+  // 1-2. Wall 객체들 생성 (바닥 경계선 기반)
+  if (staticData.greenhouse.floorBoundaries && staticData.greenhouse.floorBoundaries.length > 1) {
+    const boundaries = staticData.greenhouse.floorBoundaries;
+    const wallHeight = staticData.greenhouse.wallHeight || staticData.greenhouse.dimensions.y;
+
+    for (let i = 0; i < boundaries.length; i++) {
+      const start = boundaries[i];
+      const end = boundaries[(i + 1) % boundaries.length];  // 다음 점 (마지막은 첫점과 연결)
+
+      const wallId = `greenhouse-wall-${i}`;
+      greenhouseObj.children.push(wallId);
+
+      const wallObj: WallObject = {
+        id: wallId,
+        type: 'wall',
+        name: `Wall ${i + 1}`,
+        parentId: greenhouseId,
+        children: [],
+        visible: true,
+        locked: false,
+        wallType: 'segment',
+        startPoint: { x: start.x, z: start.z },
+        endPoint: { x: end.x, z: end.z },
+        height: wallHeight,
+      };
+      objects.set(wallId, wallObj);
+    }
+  }
 
   // 2. Beds 변환
   const bedInstances = staticData.beds.instances && staticData.beds.instances.length > 0
@@ -77,6 +119,7 @@ export function syncStaticToHierarchical(
       length: staticData.beds.specification.length,
       height: 0.3,
     },
+    rotation: { x: 0, y: 0, z: 0 },
   };
   objects.set(bedsGroupId, bedsGroup);
 
@@ -95,6 +138,7 @@ export function syncStaticToHierarchical(
         length: staticData.beds.specification.length,
         height: 0.3,
       },
+      rotation: bedInstance.rotation || { x: 0, y: 0, z: 0 },
       metadata: bedInstance.metadata,
     };
 
@@ -141,48 +185,7 @@ export function syncStaticToHierarchical(
     });
   }
 
-  // 4. Sensors 변환
-  if (staticData.sensors && staticData.sensors.length > 0) {
-    const sensorsGroupId = 'sensors-group';
-    greenhouseObj.children.push(sensorsGroupId);
-
-    // Sensors 그룹 (가상)
-    const sensorsGroup: SensorObject = {
-      id: sensorsGroupId,
-      type: 'sensor',
-      name: `Sensors (${staticData.sensors.length})`,
-      parentId: greenhouseId,
-      children: [],
-      visible: true,
-      locked: false,
-      position: { x: 0, y: 0, z: 0 },
-      sensorType: 'temperature',
-      value: 0,
-      unit: '',
-    };
-    objects.set(sensorsGroupId, sensorsGroup);
-
-    staticData.sensors.forEach((sensor: Sensor) => {
-      const sensorObj: SensorObject = {
-        id: sensor.id,
-        type: 'sensor',
-        name: sensor.name || `${sensor.type} (${sensor.id})`,
-        parentId: sensorsGroupId,
-        children: [],
-        visible: true,
-        locked: false,
-        position: sensor.position,
-        sensorType: mapSensorType(sensor.type),
-        value: 0,
-        unit: getSensorUnit(sensor.type),
-      };
-
-      sensorsGroup.children.push(sensorObj.id);
-      objects.set(sensorObj.id, sensorObj);
-    });
-  }
-
-  // 5. Coordinate Axes 변환
+  // 4. Coordinate Axes 변환
   if (staticData.coordinateAxes) {
     const axesId = 'coordinate-axes';
     greenhouseObj.children.push(axesId);
@@ -200,12 +203,11 @@ export function syncStaticToHierarchical(
     objects.set(axesId, axesObj);
   }
 
-  // 6. HierarchicalMapData 구조 생성
-  // 기본 확장 노드: greenhouse, beds-group, zones-group, sensors-group
+  // 5. HierarchicalMapData 구조 생성
+  // 기본 확장 노드: greenhouse, beds-group, zones-group
   const defaultExpandedNodes = [greenhouseId];
   if (objects.has('beds-group')) defaultExpandedNodes.push('beds-group');
   if (objects.has('zones-group')) defaultExpandedNodes.push('zones-group');
-  if (objects.has('sensors-group')) defaultExpandedNodes.push('sensors-group');
 
   const hierarchicalData: HierarchicalMapData = {
     version: staticData.version,
@@ -228,57 +230,4 @@ export function syncStaticToHierarchical(
   };
 
   return hierarchicalData;
-}
-
-/**
- * StaticMapData 센서 타입을 HierarchicalMapData 센서 타입으로 매핑
- */
-function mapSensorType(type: string): 'temperature' | 'humidity' | 'light' | 'ph' | 'moisture' {
-  switch (type.toLowerCase()) {
-    case 'temperature':
-    case 'temp':
-      return 'temperature';
-    case 'humidity':
-    case 'humid':
-      return 'humidity';
-    case 'light':
-    case 'illuminance':
-      return 'light';
-    case 'ph':
-      return 'ph';
-    case 'moisture':
-    case 'soil_moisture':
-      return 'moisture';
-    case 'camera':
-    case 'thermal':
-    default:
-      return 'temperature'; // 기본값
-  }
-}
-
-/**
- * 센서 타입에 따른 단위 반환
- */
-function getSensorUnit(type: string): string {
-  switch (type.toLowerCase()) {
-    case 'temperature':
-    case 'temp':
-    case 'thermal':
-      return '°C';
-    case 'humidity':
-    case 'humid':
-      return '%';
-    case 'light':
-    case 'illuminance':
-      return 'lux';
-    case 'ph':
-      return 'pH';
-    case 'moisture':
-    case 'soil_moisture':
-      return '%';
-    case 'camera':
-      return '';
-    default:
-      return '';
-  }
 }

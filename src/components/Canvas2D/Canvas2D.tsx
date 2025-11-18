@@ -14,6 +14,7 @@ export function Canvas2D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
     config,
+    staticMapData,
     robots,
     waypoints,
     zones,
@@ -22,6 +23,11 @@ export function Canvas2D() {
   } = useEditor();
 
   const { mode, selectedRobotId, selectedZoneId } = editorState;
+
+  // Get dimensions from either config or staticMapData
+  const dimensions = staticMapData
+    ? { width: staticMapData.greenhouse.dimensions.x, length: staticMapData.greenhouse.dimensions.z }
+    : config?.dimensions || { width: 40, length: 100 };
 
   const [viewState, setViewState] = useState<ViewState>({
     scale: 1,
@@ -42,15 +48,15 @@ export function Canvas2D() {
     const centerY = canvas.height / 2;
 
     // Scale factor: map greenhouse dimensions to canvas
-    const scaleX = (canvas.width * 0.8) / config.dimensions.width;
-    const scaleZ = (canvas.height * 0.8) / config.dimensions.length;
+    const scaleX = (canvas.width * 0.8) / dimensions.width;
+    const scaleZ = (canvas.height * 0.8) / dimensions.length;
     const baseScale = Math.min(scaleX, scaleZ);
 
     const x = centerX + (worldX * baseScale * viewState.scale) + viewState.offsetX;
     const y = centerY - (worldZ * baseScale * viewState.scale) + viewState.offsetY;
 
     return { x, y };
-  }, [config.dimensions, viewState]);
+  }, [dimensions, viewState]);
 
   // Convert canvas coordinates to world coordinates
   const canvasToWorld = useCallback((canvasX: number, canvasY: number) => {
@@ -60,15 +66,15 @@ export function Canvas2D() {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    const scaleX = (canvas.width * 0.8) / config.dimensions.width;
-    const scaleZ = (canvas.height * 0.8) / config.dimensions.length;
+    const scaleX = (canvas.width * 0.8) / dimensions.width;
+    const scaleZ = (canvas.height * 0.8) / dimensions.length;
     const baseScale = Math.min(scaleX, scaleZ);
 
     const worldX = (canvasX - centerX - viewState.offsetX) / (baseScale * viewState.scale);
     const worldZ = -(canvasY - centerY - viewState.offsetY) / (baseScale * viewState.scale);
 
     return { x: worldX, z: worldZ };
-  }, [config.dimensions, viewState]);
+  }, [dimensions, viewState]);
 
   // Draw the 2D scene
   const draw = useCallback(() => {
@@ -107,17 +113,17 @@ export function Canvas2D() {
 
     // Restore context state
     ctx.restore();
-  }, [config, robots, waypoints, zones, selectedRobotId, selectedZoneId, viewState, hoveredItem, worldToCanvas]);
+  }, [config, robots, waypoints, zones, selectedRobotId, selectedZoneId, viewState, hoveredItem, worldToCanvas, dimensions]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D) => {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
 
     const gridSize = 10; // 10 meter grid
-    const startX = -config.dimensions.width / 2;
-    const endX = config.dimensions.width / 2;
-    const startZ = -config.dimensions.length / 2;
-    const endZ = config.dimensions.length / 2;
+    const startX = -dimensions.width / 2;
+    const endX = dimensions.width / 2;
+    const startZ = -dimensions.length / 2;
+    const endZ = dimensions.length / 2;
 
     for (let x = startX; x <= endX; x += gridSize) {
       const start = worldToCanvas(x, startZ);
@@ -139,8 +145,8 @@ export function Canvas2D() {
   };
 
   const drawGreenhouse = (ctx: CanvasRenderingContext2D) => {
-    const halfWidth = config.dimensions.width / 2;
-    const halfLength = config.dimensions.length / 2;
+    const halfWidth = dimensions.width / 2;
+    const halfLength = dimensions.length / 2;
 
     const topLeft = worldToCanvas(-halfWidth, halfLength);
     const topRight = worldToCanvas(halfWidth, halfLength);
@@ -171,6 +177,7 @@ export function Canvas2D() {
   };
 
   const drawHangingBeds = (ctx: CanvasRenderingContext2D) => {
+    if (!config) return;
     const { beds } = config;
     if (!beds) return;
 
