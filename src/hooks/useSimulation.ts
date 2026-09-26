@@ -1,6 +1,17 @@
 import { useEffect, useRef } from "react";
 import { useEditor } from "../contexts";
 
+/**
+ * useSimulation Hook - 로봇 시뮬레이션
+ *
+ * 좌표계:
+ * - X축: 좌우 (Width)
+ * - Y축: 전후 (Length/Depth)
+ * - Z축: 높이 (Height)
+ * - 로봇 이동: XY 평면
+ * - rotation: Z축 회전 (바닥 평면)
+ */
+
 export function useSimulation() {
   const { editorState, robots, waypoints, updateRobot } = useEditor();
   const { isPlaying } = editorState;
@@ -42,18 +53,18 @@ export function useSimulation() {
         const current = robotWaypoints[currentIndex];
         const next = robotWaypoints[nextIndex];
 
-        // 위치 보간
+        // 위치 보간 (XY 평면)
         const x = current.position.x + (next.position.x - current.position.x) * t;
-        const z = current.position.z + (next.position.z - current.position.z) * t;
+        const y = current.position.y + (next.position.y - current.position.y) * t;
 
-        // 방향 계산
+        // 방향 계산 (XY 평면에서 Z축 회전)
         const dx = next.position.x - current.position.x;
-        const dz = next.position.z - current.position.z;
-        const rotation = Math.atan2(dx, dz);
+        const dy = next.position.y - current.position.y;
+        const rotation = Math.atan2(dy, dx); // Z축 회전
 
         // 로봇 상태 업데이트
         updateRobot(robot.id, {
-          position: { x, y: robot.position.y, z },
+          position: { x, y, z: robot.position.z }, // Z축 높이 유지
           rotation,
           status: "moving",
         });

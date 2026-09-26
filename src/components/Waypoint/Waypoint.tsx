@@ -5,6 +5,16 @@ import { useFrame } from "@react-three/fiber";
 import type { Waypoint as WaypointType } from "../../types/greenhouse";
 import { COLORS } from "../../constants/materials";
 
+/**
+ * Waypoint Component - 경로 웨이포인트 마커
+ *
+ * 좌표계:
+ * - X축: 좌우 (Width)
+ * - Y축: 전후 (Length/Depth)
+ * - Z축: 높이 (Height)
+ * - 웨이포인트는 XY 평면 위에 배치됨
+ */
+
 interface WaypointProps {
   waypoint: WaypointType;
   isSelected: boolean;
@@ -46,13 +56,13 @@ export function Waypoint({
         onClick?.();
       }}
     >
-      {/* 웨이포인트 기둥 */}
-      <Cylinder args={[0.1, 0.15, 1, 8]} position={[0, 0.5, 0]}>
+      {/* 웨이포인트 기둥 (Z축 방향 수직) */}
+      <Cylinder args={[0.1, 0.15, 1, 8]} position={[0, 0, 0.5]}>
         <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
       </Cylinder>
 
       {/* 웨이포인트 구체 */}
-      <Sphere ref={meshRef} args={[0.25, 16, 16]} position={[0, 1, 0]}>
+      <Sphere ref={meshRef} args={[0.25, 16, 16]} position={[0, 0, 1]}>
         <meshStandardMaterial
           color={color}
           metalness={0.3}
@@ -62,10 +72,10 @@ export function Waypoint({
         />
       </Sphere>
 
-      {/* 순서 번호 표시 */}
+      {/* 순서 번호 표시 (위에) */}
       {showOrder && (
         <Text
-          position={[0, 1.5, 0]}
+          position={[0, 0, 1.5]}
           fontSize={0.4}
           color="#ffffff"
           anchorX="center"
@@ -77,17 +87,17 @@ export function Waypoint({
         </Text>
       )}
 
-      {/* 선택 링 */}
+      {/* 선택 링 (XY 평면) */}
       {isSelected && (
-        <mesh ref={ringRef} position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh ref={ringRef} position={[0, 0, 0.01]} rotation={[0, 0, 0]}>
           <ringGeometry args={[0.5, 0.8, 32]} />
           <meshBasicMaterial color={color} opacity={0.5} transparent />
         </mesh>
       )}
 
-      {/* 연결 표시 */}
+      {/* 연결 표시 (위에) */}
       {connected && (
-        <mesh position={[0, 1.8, 0]}>
+        <mesh position={[0, 0, 1.8]}>
           <sphereGeometry args={[0.1, 8, 8]} />
           <meshBasicMaterial color="#00ff00" />
         </mesh>

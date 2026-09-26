@@ -1,0 +1,44 @@
+/**
+ * ViaFarmFlow - Spacing System
+ * Consistent spacing scale for layouts and components
+ */
+
+:root {
+  /* Base spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Semantic spacing */
+  --space-xs: var(--space-1);
+  --space-sm: var(--space-2);
+  --space-md: var(--space-4);
+  --space-lg: var(--space-6);
+  --space-xl: var(--space-8);
+  --space-2xl: var(--space-12);
+  --space-3xl: var(--space-16);
+
+  /* Component-specific spacing */
+  --space-button-padding-y: var(--space-2);
+  --space-button-padding-x: var(--space-4);
+  --space-input-padding: var(--space-2);
+  --space-panel-padding: var(--space-4);
+  --space-modal-padding: var(--space-6);
+  --space-card-padding: var(--space-4);
+
+  /* Layout spacing */
+  --space-toolbar-height: 48px;
+  --space-statusbar-height: 32px;
+  --space-sidebar-width: 320px;
+  --space-left-toolbar-width: 280px;
+}

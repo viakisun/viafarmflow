@@ -1,32 +1,81 @@
+import { useState } from "react";
+import { ProjectProvider, useProject } from "./contexts/ProjectContext";
+import { HistoryProvider } from "./contexts/HistoryContext";
 import { EditorProvider } from "./contexts/EditorContext";
 import { EditorLayout } from "./components/Layout/EditorLayout";
-import { Toolbar } from "./components/Toolbar/Toolbar";
-import { Sidebar } from "./components/Sidebar/Sidebar";
-import { StatusBar } from "./components/StatusBar/StatusBar";
+import { NewToolbar } from "./components/EditorV2/NewToolbar";
+import { NewSidebar } from "./components/EditorV2/NewSidebar";
+import { NewStatusBar } from "./components/EditorV2/NewStatusBar";
 import { Scene } from "./components/Scene";
+import { ProjectListLayout } from "./components/Projects/ProjectListLayout";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useSimulation } from "./hooks/useSimulation";
 import "./App.css";
 
-function EditorApp() {
+interface EditorAppProps {
+  onBackToProjects: () => void;
+}
+
+function EditorApp({ onBackToProjects }: EditorAppProps) {
   useKeyboardShortcuts();
   useSimulation();
 
   return (
     <EditorLayout
-      toolbar={<Toolbar />}
-      sidebar={<Sidebar />}
+      toolbar={<NewToolbar onBackToProjects={onBackToProjects} />}
+      sidebar={<NewSidebar />}
       viewport={<Scene />}
-      statusbar={<StatusBar />}
+      statusbar={<NewStatusBar />}
     />
+  );
+}
+
+function AppContent() {
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const { loadProject, state } = useProject();
+
+  const handleBackToProjects = () => {
+    setSelectedProjectId(null);
+  };
+
+  const handleProjectSelect = async (projectId: string) => {
+    try {
+      await loadProject(projectId);
+      setSelectedProjectId(projectId);
+    } catch (error) {
+      console.error('Failed to load project:', error);
+    }
+  };
+
+  // Keep providers mounted to prevent re-initialization
+  return (
+    <HistoryProvider>
+      <EditorProvider>
+        {!selectedProjectId ? (
+          <ProjectListLayout onProjectSelect={handleProjectSelect} />
+        ) : state.isLoading ? (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100vh',
+            color: 'var(--color-gray-600)'
+          }}>
+            Loading project...
+          </div>
+        ) : (
+          <EditorApp onBackToProjects={handleBackToProjects} />
+        )}
+      </EditorProvider>
+    </HistoryProvider>
   );
 }
 
 function App() {
   return (
-    <EditorProvider>
-      <EditorApp />
-    </EditorProvider>
+    <ProjectProvider>
+      <AppContent />
+    </ProjectProvider>
   );
 }
 

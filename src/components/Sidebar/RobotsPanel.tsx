@@ -111,7 +111,7 @@ export function RobotsPanel() {
             <h3 className="panel-title">위치</h3>
             <div className="panel-group">
               <div className="panel-row">
-                <label className="panel-label">X</label>
+                <label className="panel-label">X (좌우)</label>
                 <input
                   type="number"
                   className="panel-input"
@@ -121,7 +121,7 @@ export function RobotsPanel() {
                 />
               </div>
               <div className="panel-row">
-                <label className="panel-label">Y</label>
+                <label className="panel-label">Y (전후)</label>
                 <input
                   type="number"
                   className="panel-input"
@@ -131,7 +131,7 @@ export function RobotsPanel() {
                 />
               </div>
               <div className="panel-row">
-                <label className="panel-label">Z</label>
+                <label className="panel-label">Z (높이)</label>
                 <input
                   type="number"
                   className="panel-input"

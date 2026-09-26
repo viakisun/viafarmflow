@@ -1,0 +1,129 @@
+/**
+ * Input Component Styles
+ * Black & White design - Clean, minimal input fields
+ */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: var(--space-1);
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-input-padding);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  border: var(--border-width-1) solid var(--color-border-secondary);
+  border-radius: var(--border-radius);
+  transition: border-color 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input:hover {
+  border-color: var(--color-border-hover);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-focus);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-gray-100);
+  color: var(--color-text-disabled);
+}
+
+/* With prefix/suffix icons */
+.hasPrefix {
+  padding-left: calc(var(--space-input-padding) * 2 + 16px);
+}
+
+.hasSuffix {
+  padding-right: calc(--space-input-padding) * 2 + 16px);
+}
+
+.prefix,
+.suffix {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.prefix {
+  left: var(--space-input-padding);
+}
+
+.suffix {
+  right: var(--space-input-padding);
+}
+
+/* Error state */
+.error .input {
+  border-color: var(--color-error);
+}
+
+.error .input:focus {
+  box-shadow: 0 0 0 2px var(--color-error);
+}
+
+.errorMessage {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+}
+
+/* Helper text */
+.helperText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Sizes */
+.sm .input {
+  padding: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.lg .input {
+  padding: var(--space-3);
+  font-size: var(--font-size-md);
+}
+
+/* Number input - remove spinner */
+input[type='number'].input::-webkit-inner-spin-button,
+input[type='number'].input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'].input {
+  -moz-appearance: textfield;
+}

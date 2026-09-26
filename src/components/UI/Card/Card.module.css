@@ -1,0 +1,45 @@
+/**
+ * Card Component Styles
+ * Black & White design - Simple bordered card
+ */
+
+.card {
+  background-color: var(--color-bg-primary);
+  border: var(--border-width-1) solid var(--color-border-secondary);
+  border-radius: var(--border-radius);
+  padding: var(--space-card-padding);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card.interactive {
+  cursor: pointer;
+}
+
+.card.interactive:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.card.selected {
+  border-color: var(--color-border-primary);
+  border-width: var(--border-width-2);
+}
+
+/* Variants */
+.outlined {
+  background-color: transparent;
+}
+
+.filled {
+  background-color: var(--color-gray-50);
+  border-color: transparent;
+}
+
+/* Padding variants */
+.compact {
+  padding: var(--space-2);
+}
+
+.comfortable {
+  padding: var(--space-6);
+}

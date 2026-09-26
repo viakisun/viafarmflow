@@ -1,0 +1,27 @@
+/**
+ * ViaFarmFlow - Border System
+ * NO BORDER RADIUS - Pure rectangular design
+ */
+
+:root {
+  /* Border widths */
+  --border-width-0: 0;
+  --border-width-1: 1px;
+  --border-width-2: 2px;
+  --border-width-4: 4px;
+
+  /* Border radius - ALWAYS 0 for our design */
+  --border-radius: 0;
+
+  /* Shadows - Minimal, only for depth when necessary */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 2px var(--color-black);
+
+  /* Outline */
+  --outline-width: 2px;
+  --outline-offset: 2px;
+  --outline-color: var(--color-black);
+}

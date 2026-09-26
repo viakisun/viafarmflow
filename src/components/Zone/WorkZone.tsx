@@ -4,6 +4,16 @@ import { useFrame } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import type { WorkZone as WorkZoneType } from "../../types/greenhouse";
 
+/**
+ * WorkZone Component - 작업 영역 시각화
+ *
+ * 좌표계:
+ * - X축: 좌우 (Width)
+ * - Y축: 전후 (Length/Depth)
+ * - Z축: 높이 (Height)
+ * - 구역: XY 평면에 렌더링됨
+ */
+
 interface WorkZoneProps {
   zone: WorkZoneType;
   isSelected: boolean;
@@ -22,16 +32,16 @@ export function WorkZone({
   const meshRef = useRef<Mesh>(null);
   const outlineRef = useRef<Mesh>(null);
 
-  // Shape 생성 (다각형)
+  // Shape 생성 (다각형, XY 평면)
   const geometry = useMemo(() => {
     if (zone.points.length < 3) return null;
 
     const shape = new Shape();
     zone.points.forEach((point, index) => {
       if (index === 0) {
-        shape.moveTo(point.x, point.z);
+        shape.moveTo(point.x, point.y); // XY 평면
       } else {
-        shape.lineTo(point.x, point.z);
+        shape.lineTo(point.x, point.y); // XY 평면
       }
     });
     shape.closePath();
@@ -53,9 +63,9 @@ export function WorkZone({
     );
 
     return new Vector3(
-      sum.x / zone.points.length,
-      sum.y / zone.points.length + 2,
-      sum.z / zone.points.length,
+      sum.x / zone.points.length,      // X축: 좌우
+      sum.y / zone.points.length,      // Y축: 전후
+      sum.z / zone.points.length + 2,  // Z축: 높이 + 오프셋
     );
   }, [zone.points]);
 
@@ -67,7 +77,7 @@ export function WorkZone({
     }
 
     if (isSelected && outlineRef.current) {
-      outlineRef.current.position.y = height + Math.sin(state.clock.elapsedTime * 3) * 0.05;
+      outlineRef.current.position.z = height + Math.sin(state.clock.elapsedTime * 3) * 0.05;
     }
   });
 
@@ -75,12 +85,12 @@ export function WorkZone({
 
   return (
     <group onClick={onClick}>
-      {/* 구역 바닥 */}
+      {/* 구역 바닥 (XY 평면) */}
       <mesh
         ref={meshRef}
         geometry={geometry}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, height, 0]}
+        rotation={[0, 0, 0]} // XY 평면 - 회전 없음
+        position={[0, 0, height]}
       >
         <meshStandardMaterial
           color={zone.color}
@@ -94,13 +104,13 @@ export function WorkZone({
       <mesh
         ref={outlineRef}
         geometry={geometry}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, height + 0.01, 0]}
+        rotation={[0, 0, 0]} // XY 평면 - 회전 없음
+        position={[0, 0, height + 0.01]}
       >
         <meshBasicMaterial color={zone.color} wireframe transparent opacity={0.8} />
       </mesh>
 
-      {/* 구역 이름 표시 */}
+      {/* 구역 이름 표시 (위에) */}
       <Text
         position={center}
         fontSize={1.5}
@@ -115,7 +125,7 @@ export function WorkZone({
 
       {/* 구역 포인트 표시 */}
       {zone.points.map((point, index) => (
-        <group key={index} position={[point.x, height + 0.1, point.z]}>
+        <group key={index} position={[point.x, point.y, height + 0.1]}>
           <mesh>
             <sphereGeometry args={[0.2, 8, 8]} />
             <meshStandardMaterial
@@ -125,7 +135,7 @@ export function WorkZone({
             />
           </mesh>
           {index === 0 && (
-            <mesh position={[0, 0.5, 0]}>
+            <mesh position={[0, 0, 0.5]}>
               <coneGeometry args={[0.15, 0.3, 4]} />
               <meshStandardMaterial color="#00ff00" />
             </mesh>
@@ -133,22 +143,22 @@ export function WorkZone({
         </group>
       ))}
 
-      {/* 구역 벽 (선택시) */}
+      {/* 구역 벽 (선택시, Z축 방향 수직) */}
       {isSelected &&
         zone.points.map((point, index) => {
           const nextPoint = zone.points[(index + 1) % zone.points.length];
           const dx = nextPoint.x - point.x;
-          const dz = nextPoint.z - point.z;
-          const distance = Math.sqrt(dx * dx + dz * dz);
-          const angle = Math.atan2(dz, dx);
+          const dy = nextPoint.y - point.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const angle = Math.atan2(dy, dx);
 
           return (
             <mesh
               key={`wall-${index}`}
-              position={[(point.x + nextPoint.x) / 2, 1, (point.z + nextPoint.z) / 2]}
-              rotation={[0, -angle + Math.PI / 2, 0]}
+              position={[(point.x + nextPoint.x) / 2, (point.y + nextPoint.y) / 2, 1]}
+              rotation={[0, 0, -angle + Math.PI / 2]}
             >
-              <boxGeometry args={[0.05, 2, distance]} />
+              <boxGeometry args={[0.05, distance, 2]} />
               <meshStandardMaterial color={zone.color} transparent opacity={0.2} />
             </mesh>
           );

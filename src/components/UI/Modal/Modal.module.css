@@ -1,0 +1,114 @@
+/**
+ * Modal Component Styles
+ * Black & White design - Clean overlay and dialog
+ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+}
+
+.modal {
+  position: relative;
+  background-color: var(--color-bg-primary);
+  border: var(--border-width-1) solid var(--color-border-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-modal-padding);
+  border-bottom: var(--border-width-1) solid var(--color-border-tertiary);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.closeButton {
+  padding: var(--space-1);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.15s ease;
+}
+
+.closeButton:hover {
+  color: var(--color-text-primary);
+}
+
+.content {
+  padding: var(--space-modal-padding);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-modal-padding);
+  border-top: var(--border-width-1) solid var(--color-border-tertiary);
+}
+
+/* Sizes */
+.sm {
+  width: 400px;
+}
+
+.md {
+  width: 600px;
+}
+
+.lg {
+  width: 800px;
+}
+
+.xl {
+  width: 1000px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.overlay {
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  animation: slideUp 0.3s ease;
+}

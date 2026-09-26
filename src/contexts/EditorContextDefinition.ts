@@ -2,7 +2,31 @@ import { createContext } from "react";
 import type { GreenhouseConfig, Robot, Waypoint, WorkZone, MapData } from "../types/greenhouse";
 
 export type EditorMode = "view" | "edit" | "robot" | "path" | "zone";
-export type PanelTab = "properties" | "robots" | "paths" | "zones" | "settings";
+export type PanelTab = "properties" | "robots" | "paths" | "zones" | "settings" | "objects";
+
+export interface ObjectVisibility {
+  xyPlane: boolean;
+  axes: boolean;
+  greenhouse: {
+    enabled: boolean;
+    floor: boolean;
+    walls: boolean;
+    roof: boolean;
+    columns: boolean;
+    frame: boolean;
+  };
+  beds: {
+    enabled: boolean;
+    platforms: boolean;
+    cables: boolean;
+    plants: boolean;
+  };
+  robots: boolean;
+  paths: boolean;
+  zones: boolean;
+  labels: boolean;
+  shadows: boolean;
+}
 
 export interface EditorState {
   mode: EditorMode;
@@ -12,6 +36,7 @@ export interface EditorState {
   showGrid: boolean;
   showDimensions: boolean;
   activePanel: PanelTab;
+  visibility: ObjectVisibility;
 }
 
 export interface EditorContextType {
@@ -40,6 +65,8 @@ export interface EditorContextType {
   toggleDimensions: () => void;
   setActivePanel: (panel: PanelTab) => void;
   setPlaying: (playing: boolean) => void;
+  updateVisibility: (updates: Partial<ObjectVisibility>) => void;
+  toggleObjectVisibility: (key: keyof ObjectVisibility) => void;
   loadMapData: (mapData: MapData) => void;
   resetAll: () => void;
 

@@ -5,6 +5,16 @@ import { Line, Text } from "@react-three/drei";
 import { useEditor } from "../../contexts";
 import type { WorkZone, RobotPosition } from "../../types/greenhouse";
 
+/**
+ * ZoneEditor Component - 작업 영역 편집기
+ *
+ * 좌표계:
+ * - X축: 좌우 (Width)
+ * - Y축: 전후 (Length/Depth)
+ * - Z축: 높이 (Height)
+ * - 구역: XY 평면에 그려짐
+ */
+
 export function ZoneEditor() {
   const { editorState, addZone, config } = useEditor();
   const { mode } = editorState;
@@ -32,17 +42,17 @@ export function ZoneEditor() {
     event.stopPropagation();
     const point = event.point;
 
-    // 온실 경계 내에 있는지 확인
+    // 온실 경계 내에 있는지 확인 (XY 평면)
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: config.dimensions.width / 2,  // X축: 좌우
+      y: config.dimensions.length / 2, // Y축: 전후
     };
 
-    if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
+    if (Math.abs(point.x) <= bounds.x && Math.abs(point.y) <= bounds.y) {
       const newPoint: RobotPosition = {
-        x: point.x,
-        y: 0,
-        z: point.z,
+        x: point.x, // X축: 좌우
+        y: point.y, // Y축: 전후
+        z: 0,       // Z축: 바닥
       };
 
       if (!isDrawing) {
@@ -57,7 +67,7 @@ export function ZoneEditor() {
         if (drawingPoints.length >= 3) {
           const firstPoint = drawingPoints[0];
           const distance = Math.sqrt(
-            Math.pow(point.x - firstPoint.x, 2) + Math.pow(point.z - firstPoint.z, 2),
+            Math.pow(point.x - firstPoint.x, 2) + Math.pow(point.y - firstPoint.y, 2),
           );
 
           if (distance < 2) {
@@ -93,12 +103,12 @@ export function ZoneEditor() {
     const point = event.point;
 
     const bounds = {
-      x: config.dimensions.width / 2,
-      z: config.dimensions.length / 2,
+      x: config.dimensions.width / 2,  // X축: 좌우
+      y: config.dimensions.length / 2, // Y축: 전후
     };
 
-    if (Math.abs(point.x) <= bounds.x && Math.abs(point.z) <= bounds.z) {
-      setPreviewPoint(new Vector3(point.x, 0.1, point.z));
+    if (Math.abs(point.x) <= bounds.x && Math.abs(point.y) <= bounds.y) {
+      setPreviewPoint(new Vector3(point.x, point.y, 0.1));
     } else {
       setPreviewPoint(null);
     }
@@ -108,9 +118,9 @@ export function ZoneEditor() {
     setPreviewPoint(null);
   };
 
-  // 그리기 중인 라인 포인트
+  // 그리기 중인 라인 포인트 (XY 평면)
   const linePoints = useMemo(() => {
-    const points = drawingPoints.map((p) => new Vector3(p.x, 0.1, p.z));
+    const points = drawingPoints.map((p) => new Vector3(p.x, p.y, 0.1));
     if (previewPoint && isDrawing) {
       points.push(previewPoint);
     }
@@ -123,10 +133,10 @@ export function ZoneEditor() {
 
   return (
     <>
-      {/* 클릭 가능한 바닥 */}
+      {/* 클릭 가능한 바닥 (XY 평면) */}
       <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.02, 0]}
+        rotation={[0, 0, 0]} // XY 평면 - 회전 없음
+        position={[0, 0, 0.02]}
         onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
@@ -150,7 +160,7 @@ export function ZoneEditor() {
 
       {/* 그리기 포인트들 */}
       {drawingPoints.map((point, index) => (
-        <group key={index} position={[point.x, 0.1, point.z]}>
+        <group key={index} position={[point.x, point.y, 0.1]}>
           <mesh>
             <sphereGeometry args={[0.3, 16, 16]} />
             <meshStandardMaterial
@@ -160,7 +170,7 @@ export function ZoneEditor() {
             />
           </mesh>
           {index === 0 && drawingPoints.length >= 3 && (
-            <mesh position={[0, 1, 0]} rotation={[0, 0, 0]}>
+            <mesh position={[0, 0, 1]} rotation={[0, 0, 0]}>
               <torusGeometry args={[0.5, 0.1, 8, 16]} />
               <meshBasicMaterial color="#00ff00" />
             </mesh>
@@ -178,7 +188,7 @@ export function ZoneEditor() {
 
       {/* 도움말 */}
       {isDrawing && (
-        <group position={[0, 5, -20]}>
+        <group position={[0, -20, 5]}>
           <Text
             fontSize={0.8}
             color="#ffffff"

@@ -8,21 +8,21 @@ export const MATERIALS = {
     opacity: 0.3,
   },
   frame: {
-    color: 0x2a2a2a,
-    metalness: 0.8,
-    roughness: 0.2,
+    color: 0xe0e0e0,  // 밝은 회색 (흰색에 가까움)
+    metalness: 0.3,
+    roughness: 0.5,
   },
   bed: {
     color: 0x3a5f3a,
     roughness: 0.7,
   },
   support: {
-    color: 0x1a1a1a,
-    metalness: 0.7,
-    roughness: 0.3,
+    color: 0xcccccc,  // 밝은 회색
+    metalness: 0.3,
+    roughness: 0.5,
   },
   floor: {
-    color: 0x1a1a1a,
+    color: 0xf5f5f5,  // 거의 흰색 (약간 회색빛)
     roughness: 0.8,
   },
   cable: {
@@ -37,10 +37,10 @@ export const MATERIALS = {
 } as const;
 
 export const COLORS = {
-  background: 0x0a0a0a,
+  background: 0xffffff,  // 이미 Scene.tsx에서 흰색으로 변경됨
   grid: {
-    major: 0x222222,
-    minor: 0x111111,
+    major: 0xcccccc,  // 밝은 회색 (주요 그리드선)
+    minor: 0xe8e8e8,  // 더 밝은 회색 (보조 그리드선)
   },
   dimension: 0xffaa00,
   robot: {

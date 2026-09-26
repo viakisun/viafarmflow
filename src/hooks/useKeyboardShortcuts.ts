@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useEditor } from "../contexts";
+import { useHistory } from "../contexts/HistoryContext";
 
 export function useKeyboardShortcuts() {
   const {
@@ -11,6 +12,8 @@ export function useKeyboardShortcuts() {
     editorState,
     setPlaying,
   } = useEditor();
+
+  const { undo, redo, canUndo, canRedo } = useHistory();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -72,6 +75,27 @@ export function useKeyboardShortcuts() {
       // Ctrl/Cmd 단축키
       if (event.ctrlKey || event.metaKey) {
         switch (event.key.toLowerCase()) {
+          case "z":
+            event.preventDefault();
+            if (event.shiftKey) {
+              // Ctrl+Shift+Z: Redo
+              if (canRedo()) {
+                redo();
+              }
+            } else {
+              // Ctrl+Z: Undo
+              if (canUndo()) {
+                undo();
+              }
+            }
+            break;
+          case "y":
+            // Ctrl+Y: Redo (alternative)
+            event.preventDefault();
+            if (canRedo()) {
+              redo();
+            }
+            break;
           case "s":
             // 저장 (향후 구현)
             event.preventDefault();
@@ -99,5 +123,9 @@ export function useKeyboardShortcuts() {
     deleteZone,
     editorState,
     setPlaying,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   ]);
 }

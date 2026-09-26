@@ -5,6 +5,16 @@ import { Robot } from "./Robot";
 import type { Robot as RobotType } from "../../types/greenhouse";
 import { useEditor } from "../../contexts";
 
+/**
+ * DraggableRobot Component - 드래그 가능한 로봇
+ *
+ * 좌표계:
+ * - X축: 좌우 (Width)
+ * - Y축: 전후 (Length/Depth)
+ * - Z축: 높이 (Height)
+ * - 드래그 평면: XY 평면 (Z=일정)
+ */
+
 interface DraggableRobotProps {
   robot: RobotType;
   isSelected: boolean;
@@ -16,7 +26,8 @@ export function DraggableRobot({ robot, isSelected, onClick }: DraggableRobotPro
   const { camera, gl } = useThree();
   const { updateRobot, editorState } = useEditor();
   const [isDragging, setIsDragging] = useState(false);
-  const [dragPlane] = useState(() => new Plane(new Vector3(0, 1, 0), 0));
+  // 드래그 평면: XY 평면 (Z축 방향 법선 벡터)
+  const [dragPlane] = useState(() => new Plane(new Vector3(0, 0, 1), 0));
   const [dragPoint] = useState(() => new Vector3());
   const [dragOffset] = useState(() => new Vector3());
 
@@ -42,8 +53,8 @@ export function DraggableRobot({ robot, isSelected, onClick }: DraggableRobotPro
       if (intersects.length > 0) {
         setIsDragging(true);
 
-        // 드래그 평면을 로봇의 Y 위치에 설정
-        dragPlane.constant = -robot.position.y;
+        // 드래그 평면을 로봇의 Z 높이에 설정
+        dragPlane.constant = -robot.position.z;
 
         // 드래그 시작 지점 계산
         if (raycaster.ray.intersectPlane(dragPlane, dragPoint)) {
@@ -68,20 +79,20 @@ export function DraggableRobot({ robot, isSelected, onClick }: DraggableRobotPro
       if (raycaster.ray.intersectPlane(dragPlane, dragPoint)) {
         const newPosition = dragPoint.clone().sub(dragOffset);
 
-        // 온실 경계 내로 제한
+        // 온실 경계 내로 제한 (XY 평면)
         const bounds = {
-          x: { min: -20, max: 20 },
-          z: { min: -50, max: 50 },
+          x: { min: -20, max: 20 },  // X축: 좌우 폭
+          y: { min: -50, max: 50 },  // Y축: 전후 길이
         };
 
         newPosition.x = Math.max(bounds.x.min, Math.min(bounds.x.max, newPosition.x));
-        newPosition.z = Math.max(bounds.z.min, Math.min(bounds.z.max, newPosition.z));
+        newPosition.y = Math.max(bounds.y.min, Math.min(bounds.y.max, newPosition.y));
 
         updateRobot(robot.id, {
           position: {
-            x: newPosition.x,
-            y: robot.position.y,
-            z: newPosition.z,
+            x: newPosition.x,  // X축: 좌우
+            y: newPosition.y,  // Y축: 전후
+            z: robot.position.z, // Z축: 높이 유지
           },
         });
       }

@@ -1,0 +1,16 @@
+/**
+ * ViaFarmFlow - Responsive Breakpoints
+ * Mobile-first responsive design
+ */
+
+:root {
+  /* Breakpoint values */
+  --breakpoint-sm: 640px;   /* Small devices (phones) */
+  --breakpoint-md: 768px;   /* Medium devices (tablets) */
+  --breakpoint-lg: 1024px;  /* Large devices (laptops) */
+  --breakpoint-xl: 1280px;  /* Extra large devices (desktops) */
+  --breakpoint-2xl: 1536px; /* Ultra wide screens */
+}
+
+/* Media query mixins for easy usage */
+/* Usage: @media (min-width: var(--breakpoint-md)) { ... } */

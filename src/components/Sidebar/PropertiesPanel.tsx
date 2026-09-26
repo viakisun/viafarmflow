@@ -28,7 +28,7 @@ export function PropertiesPanel() {
         <h3 className="panel-title">온실 치수</h3>
         <div className="panel-group">
           <div className="panel-row">
-            <label className="panel-label">길이 (Z축)</label>
+            <label className="panel-label">길이 (Y축)</label>
             <input
               type="number"
               className="panel-input"
@@ -52,7 +52,7 @@ export function PropertiesPanel() {
             />
           </div>
           <div className="panel-row">
-            <label className="panel-label">높이 (Y축)</label>
+            <label className="panel-label">높이 (Z축)</label>
             <input
               type="number"
               className="panel-input"
