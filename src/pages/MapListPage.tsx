@@ -75,7 +75,7 @@ export function MapListPage() {
       },
       greenhouse: {
         floorBoundaries: [],
-        wallHeight: 8,
+        wallHeight:   8,
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 },
         dimensions: { x: 40, y: 8, z: 100 },

@@ -7,7 +7,7 @@ import type { StaticMapData } from '../types/staticMapData';
 import type { DynamicRobotData } from '../types/dynamicRobotData';
 import type { Robot, Waypoint } from '../types/greenhouse';
 import type { SceneElementsData } from '../types/core/scene';
-import type { HierarchicalMapData, GroupObject, MapObject } from '../types/core/hierarchy';
+import type { HierarchicalMapData, GroupObject, HierarchyObject } from '../types/core/hierarchy';
 import { syncSceneElementsToHierarchy } from './sceneToHierarchy';
 import { syncStaticToHierarchical } from '../utils/staticToHierarchicalSync';
 import { syncDynamicToHierarchy } from './dynamicToHierarchy';
@@ -40,7 +40,7 @@ export function syncToUnifiedHierarchy(
   legacyRobots?: Robot[],
   legacyWaypoints?: Waypoint[]
 ): HierarchicalMapData {
-  const objects = new Map<string, MapObject>();
+  const objects = new Map<string, HierarchyObject>();
   const root = createRootGroup();
   objects.set('root', root);
 

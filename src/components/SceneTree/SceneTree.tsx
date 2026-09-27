@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import type { MapObject, HierarchicalMapData, ObjectType } from '../../types/mapData';
+import type { HierarchyObject, HierarchicalMapData, ObjectType } from '../../types/core/hierarchy';
 import { Icons } from '../Icons';
 import styles from './SceneTree.module.css';
 
@@ -12,7 +12,7 @@ interface SceneTreeProps {
 }
 
 interface TreeNodeProps {
-  object: MapObject;
+  object: HierarchyObject;
   mapData: HierarchicalMapData;
   expandedNodes: Set<string>;
   level: number;

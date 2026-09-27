@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import type { GreenhouseConfig, Robot, Waypoint, WorkZone, MapData } from "../types/greenhouse";
-import type { HierarchicalMapData, MapObject } from "../types/mapData";
+import type { HierarchicalMapData, HierarchyObject } from "../types/core/hierarchy";
 import type { StaticMapData } from "../types/staticMapData";
 import type { DynamicRobotData } from "../types/dynamicRobotData";
 import type { SceneElementsData } from "../types/core/scene";
